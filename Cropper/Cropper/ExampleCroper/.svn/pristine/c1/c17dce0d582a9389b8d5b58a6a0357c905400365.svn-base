@@ -1,0 +1,68 @@
+package com.vnpay.vntalk.util;
+
+public class Define {
+	public static String ActionName = "";
+	public static final String APP_TYPE = "ANDROID";
+	public static final String VERSION = "1.0.0";
+
+	public static final int AUTO_JOIN_ROOM = 4;
+	public static final int ON_OFF = 1;
+	public static final int invite = 3;
+	public static final int VIEW_MESSAGE = 2;
+
+	public static final String FILE_SETUP = "setup";
+	public static final String FIELD_NOTIFY = "notyfi";
+	public static final String FIELD_BACKGROUND = "background";
+	public static final String FIELD_VIEW_MESSAGE = "view_message";
+	public static final String FIELD_SAVE_MESSAGE = "save_message";
+	public static final int CALL_HANDLER_DELAY = 50; // �ڵ�� ���� �ð�
+	/** �˾� ���̾�α� Ÿ�� Define **/
+	public static final int CHAT_POPUP = 0;
+
+	public static final int CHAT_THREAD_DELAY = 1000; // ä�� �޴������� ���ź�
+														// ������ �ֱ�
+	public static final int CLAUSE_GPS = 1; // ��ġ��� �̿� ���
+	public static final int CLAUSE_INFO = 2; // �������� �̿� ���
+
+	/** ��� ���� Index */
+	public static final int CLAUSE_SERVICE = 0; // ���� �̿� ���
+
+	public static String D_ID;
+	public static final String DATE_FORMAT = "yyyy-MM-dd";
+	public static final int DATE_POPUP = 1;
+
+	public static final int EXE_FAIL = 1; // ����
+	/** ��Ʈ��ŷ �Ǵ� IO �۾� ��� */
+	public static final int EXE_SUC = 0; // ����
+
+	public static final String FROM_BACKSERVICE = "FROM_BACKSERVICE"; // BackService
+																		// �κ���
+																		// �޴�
+																		// ��
+	public static final String FULLTIME_FORMAT_12 = "yyyy-MM-dd hh:mm:ss";
+	/** ��¥ ���� */
+	public static final String FULLTIME_FORMAT_24 = "yyyy-MM-dd HH:mm:ss";
+	/** �� ��ġ ��ǥ **/
+	public static int MY_LATITUDE; // ����
+	public static int MY_LONGITUDE; // �浵
+
+	/** Activity ��� ���� Signal */
+	public static final int PSIGNAL_APP = 999; // ������ �����ϴ� ����
+
+	/** Thread ���� Delay Term */
+	public static final int SHOW_INTRO_DELAY = 1000; // ��Ʈ�� ���÷��� �ð�
+
+	/** �������� ���Ǵ� �� Thread type **/
+	public static final int THREAD_CHANGE_ORIENTATION = 200000; // ȭ����� ��ȯ��
+																// �̷���� ����
+	public static final String TIME_FORMAT_12 = "hh:mm";
+
+	public static final String TIME_FORMAT_24 = "HH:mm";
+
+	/** �ð� �Է±� ���� Define */
+	public static final int TIMESET_DAY = 0; // ��¥ �Է±�
+	public static final int TIMESET_TIME = 1; // �ð� �Է±�
+
+	/** �� term **/
+	public static int VIBRATION_TERM = 1000;
+}

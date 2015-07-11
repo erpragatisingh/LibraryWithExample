@@ -1,0 +1,97 @@
+package com.vnpay.vntalk.util;
+
+import org.apache.log4j.Logger;
+
+import android.content.Context;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+
+public class MySound implements MediaPlayer.OnCompletionListener {
+
+	Logger logger = Logger.getLogger(MySound.class);
+	private Context mContext; // Context ��ü
+	private MediaPlayer mPlayer; // Player instance
+
+	public MySound(Context context, int id) {
+		mContext = context;
+		context.getResources().openRawResource(id);
+		mPlayer = MediaPlayer.create(context, id);
+	}
+
+	public MySound(Context context, int id, boolean loop) {
+		mContext = context;
+		context.getResources().openRawResource(id);
+		mPlayer = MediaPlayer.create(context, id);
+
+		playSound(loop);
+	}
+
+	public float getMyVolume(int flag) {
+		int currentVolume = 0;
+		int maxVolume = 0;
+		float myVolume = 0f;
+
+		AudioManager audioManager = (AudioManager) mContext
+				.getSystemService(Context.AUDIO_SERVICE);
+		currentVolume = audioManager.getStreamVolume(flag);
+		maxVolume = audioManager.getStreamMaxVolume(flag);
+
+		if (currentVolume <= 0)
+			myVolume = 0f;
+		else {
+			myVolume = ((float) currentVolume * (float) 10) / (float) maxVolume;
+			myVolume = myVolume / (float) 10;
+		}
+
+		return myVolume;
+	}
+
+	public MediaPlayer getPlayer() {
+		return mPlayer;
+	}
+
+	public boolean isPlaying() {
+		return mPlayer.isPlaying();
+	}
+
+	public void onCompletion(MediaPlayer mediaPlayer) {
+		stopSound();
+	}
+
+	public void pauseSound() {
+		mPlayer.pause();
+	}
+
+	public void playSound(boolean loop) {
+		/** ���Ҹ��� �������� ��� ���带 ������� �ʴ´� **/
+		float mVolume = getMyVolume(AudioManager.STREAM_RING);
+
+		try {
+			if (mPlayer.isPlaying())
+				return;
+			mPlayer.seekTo(0);
+			mPlayer.setVolume(mVolume, mVolume);
+			mPlayer.setLooping(loop);
+			mPlayer.start();
+			if (!loop)
+				mPlayer.setOnCompletionListener(this);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+
+	public void stopSound() {
+		try {
+			if (!mPlayer.isPlaying())
+				return;
+			mPlayer.stop();
+			mPlayer.setOnCompletionListener(null);
+			mPlayer.release();
+			mPlayer.reset();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+
+		}
+	}
+
+}

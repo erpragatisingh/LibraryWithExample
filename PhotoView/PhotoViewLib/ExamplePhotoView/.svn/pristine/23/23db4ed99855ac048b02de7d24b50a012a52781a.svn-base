@@ -1,0 +1,454 @@
+package com.vnpay.vntalk.util;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.channels.FileChannel;
+
+import org.apache.log4j.Logger;
+
+import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore.Images;
+import android.provider.MediaStore.Images.Media;
+import android.provider.MediaStore.Video;
+import android.util.Log;
+
+public class FileManager {
+	/*---------------------------------------------------------
+	 * Define
+	 */
+	public static final String SDCARD_CAMERE = Environment
+			.getExternalStorageDirectory().getAbsolutePath()
+			+ "/mobilebanking.jpg";
+	public static final String APP_NAME = "agribank";
+	public static final String SDCARD_ROOT = Environment
+			.getExternalStorageDirectory().getAbsolutePath() + "/";
+	public static final String SDCARD_ROOT_MEDIA_PICTURE = SDCARD_ROOT
+			+ APP_NAME + "/picture/";
+	public static final String SDCARD_ROOT_MEDIA_PICTURE_BACKGROUND = SDCARD_ROOT
+			+ APP_NAME + "/picture/background/";
+	public static final String SDCARD_ROOT_MEDIA_PICTURE_AVATAR = SDCARD_ROOT
+			+ APP_NAME + "/picture/avatar/";
+	// public static final String SDCARD_ROOT_MEDIA_PICTURE_THUMB = SDCARD_ROOT
+	// + "hiyou/picture/thumb/";
+
+	public static final String SDCARD_ROOT_MEDIA_SOUNG = SDCARD_ROOT + APP_NAME
+			+ "/sound/";
+	public static final String SDCARD_ROOT_MEDIA_VIDEO = SDCARD_ROOT + APP_NAME
+			+ "/video/";
+	public static final String SDCARD_ROOT_SAVE_PICTURES = Environment
+			.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+			+ "/" + APP_NAME + "/";
+
+	public static final String TEMP_MOVIE_URL = "abottempvideo.mp4";
+	public static final String TEMP_SOUND_URL = "abottempsound.3gp";
+	public static final int IMAGE_QUALITY = 100;
+	public static final int MOVIE_MAX_SIZE = 3000000;
+	static Logger logger = Logger.getLogger(FileManager.class);/*
+																 * Checks if
+																 * external
+																 * storage is
+																 * available for
+																 * read and
+																 * write
+																 */
+
+	public static boolean isExternalStorageWritable() {
+		String state = Environment.getExternalStorageState();
+		if (Environment.MEDIA_MOUNTED.equals(state)) {
+			return true;
+		}
+		return false;
+	}
+
+	/* Checks if external storage is available to at least read */
+	public static boolean isExternalStorageReadable() {
+		String state = Environment.getExternalStorageState();
+		if (Environment.MEDIA_MOUNTED.equals(state)
+				|| Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+			return true;
+		}
+		return false;
+	}
+
+	public static void copy(File src, File dst) throws IOException {
+		FileInputStream inStream = new FileInputStream(src);
+		FileOutputStream outStream = new FileOutputStream(dst);
+		FileChannel inChannel = inStream.getChannel();
+		FileChannel outChannel = outStream.getChannel();
+		inChannel.transferTo(0, inChannel.size(), outChannel);
+		inStream.close();
+		outStream.close();
+	}
+
+	public static void bitmap2fileDeviceMemory(Context context, Bitmap bitmap,
+			String fileName) throws Exception {
+		try {
+			FileOutputStream fos = context.openFileOutput(fileName,
+					Context.MODE_PRIVATE);
+			bitmap.compress(CompressFormat.PNG, IMAGE_QUALITY, fos);
+			fos.flush();
+			fos.close();
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+	}
+
+	public static void bitmap2fileSDCARD(Context context, Bitmap bitmap,
+			String fileName) throws Exception {
+		File mFile = new File(fileName);
+		if (mFile.exists()) {
+			return;
+		}
+		mFile.createNewFile();
+		ContentValues values = new ContentValues();
+		values.put(Images.Media.DATA, fileName);
+		values.put(Images.Media.MIME_TYPE, "image/jpeg");
+		Uri uri = context.getContentResolver().insert(
+				Media.EXTERNAL_CONTENT_URI, values);
+		OutputStream outStream;
+
+		try {
+			outStream = context.getContentResolver().openOutputStream(uri);
+			bitmap.compress(CompressFormat.PNG, IMAGE_QUALITY, outStream);
+			outStream.close();
+		} catch (FileNotFoundException e) {
+			throw e;
+		} catch (IOException e) {
+			throw e;
+		}
+	}
+
+	public static void video2fileDeviceMemory(Context _context, byte[] _data,
+			String _path) throws Exception {
+		if (_data == null || _data.length <= 0)
+			return;
+		FileOutputStream out = null;
+		File mFile = new File(_path);
+		if (mFile.exists()) { // �̹� ������
+			mFile.delete();
+		}
+		mFile.createNewFile();
+		try {
+			out = _context.openFileOutput(_path, Context.MODE_WORLD_READABLE);
+			out.write(_data, 0, _data.length);
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			try {
+				if (out != null)
+					out.close();
+			} catch (Exception e2) {
+				logger.error(e2.getMessage(), e2);
+			}
+		}
+	}
+
+	public static void video2fileSDCARD(Context _context, byte[] _data,
+			String _path) throws Exception {
+		String sdPath = FileManager.SDCARD_ROOT_MEDIA_VIDEO + _path;
+		File mFile = new File(sdPath);
+		ContentValues values = null;
+		Uri uri = null;
+		OutputStream out = null;
+
+		if (mFile.exists()) {
+			mFile.delete();
+		}
+		mFile.createNewFile();
+		try {
+			values = new ContentValues();
+			values.put(Video.Media.DATA, sdPath);
+			values.put(Video.Media.TITLE, _path);
+			values.put(Video.Media.MIME_TYPE, "video/mp4");
+			uri = _context.getContentResolver().insert(
+					Video.Media.EXTERNAL_CONTENT_URI, values);
+
+			out = _context.getContentResolver().openOutputStream(uri);
+			out.write(_data, 0, _data.length);
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		} finally {
+			try {
+				if (out != null)
+					out.close();
+			} catch (Exception e2) {
+				logger.error(e2.getMessage(), e2);
+			}
+		}
+	}
+
+	private static FileOutputStream openFileOutput(File file) {
+		return null;
+	}
+
+	public static Bitmap file2bitmap(String fileName) throws Exception {
+		Bitmap mBitmap = null;
+		try {
+			mBitmap = BitmapFactory.decodeFile(fileName);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+
+		return mBitmap;
+	}
+
+	public static Bitmap file2bitmap(Context _context, Uri _uri)
+			throws Exception {
+
+		Bitmap bm = null;
+		try {
+			bm = Images.Media.getBitmap(_context.getContentResolver(), _uri);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+		return bm;
+	}
+
+	// Read bitmap
+	public static Bitmap readBitmap(Context _context, Uri selectedImage,
+			boolean isRotation) {
+
+		int targetW = Utils_Android.getWidth(_context);
+		int targetH = Utils_Android.getHeight(_context);
+
+		/* Get the size of the image */
+		BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+		bmOptions.inJustDecodeBounds = true;
+		try {
+			BitmapFactory.decodeStream(((Activity) _context)
+					.getContentResolver().openInputStream(selectedImage), null,
+					bmOptions);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// BitmapFactory.decodeFile(selectedImage.getPath(), bmOptions);
+		// BitmapFactory.decodeFile
+		int photoW = bmOptions.outWidth;
+		int photoH = bmOptions.outHeight;
+		if (photoH == 0) {
+			bmOptions.outWidth = targetW;
+			bmOptions.outHeight = targetH;
+		}
+		/* Figure out which way needs to be reduced less */
+		int scaleFactor = 1;
+		if ((targetW > 0) || (targetH > 0)) {
+			scaleFactor = Math.min(photoW / targetW, photoH / targetH);
+		}
+		if (scaleFactor == 0)
+			scaleFactor = 1;
+
+		/* Set bitmap options to scale the image decode target */
+		bmOptions.inJustDecodeBounds = false;
+		bmOptions.inSampleSize = scaleFactor;
+		bmOptions.inPurgeable = true;
+
+		/* Decode the JPEG file into a Bitmap */
+		Bitmap bm = BitmapFactory
+				.decodeFile(selectedImage.getPath(), bmOptions);
+
+		return bm;
+
+	}
+
+	public static void copySDVideo2App(Context _context, String _oriPath,
+			String _objPath) throws Exception {
+		byte[] buffer = null;
+
+		try {
+			buffer = getVideoData(_context, _oriPath);
+			video2fileDeviceMemory(_context, buffer, _objPath);
+			// creatfileDeviceMemory(_context, buffer, _objPath);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+	}
+
+	public static void copyAppVideo2SD(Context _context, String _oriPath,
+			String _objPath) throws Exception {
+		byte[] buffer = null;
+
+		try {
+			buffer = getVideoData(_context, _oriPath);
+			video2fileSDCARD(_context, buffer, _objPath);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+	}
+
+	public static byte[] getVideoData(Context _context, String _path)
+			throws Exception {
+		byte[] buffer = null;
+		File mFile = new File(_path);
+		FileInputStream fis = null;
+
+		if (mFile.exists() && mFile.canRead()) {
+			try {
+				fis = new FileInputStream(mFile);
+				buffer = new byte[fis.available()];
+
+				while (fis.read(buffer) != -1) {
+				}
+
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				throw e;
+			} finally {
+				try {
+					if (fis != null)
+						fis.close();
+				} catch (Exception e2) {
+					logger.error(e2.getMessage(), e2);
+				}
+			}
+		}
+		return buffer;
+	}
+
+	public static boolean checkExistsFile(String _path) {
+
+		File mFile = new File(_path);
+
+		return mFile.exists();
+
+	}
+
+	public static void deleteFile(String fileName) throws Exception {
+		try {
+			File mFile = new File(fileName);
+			mFile.delete();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw e;
+		}
+	}
+
+	public static void deleteTempImageFile(String _url) {
+		String mFileName = _url;
+		try {
+			deleteFile(mFileName);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+
+	public static void renameTo(String fileName, String rename) {
+		try {
+			logger.info("rename:" + rename);
+			File mFile = new File(fileName);
+			mFile.renameTo(new File(rename));
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+
+	public static byte[] getDataFile(Context _context, String _path)
+			throws Exception {
+		byte[] buffer = null;
+		File mFile = new File(_path);
+		FileInputStream fis = null;
+
+		if (mFile.exists() && mFile.canRead()) {
+			try {
+				fis = new FileInputStream(mFile);
+				buffer = new byte[fis.available()];
+
+				while (fis.read(buffer) != -1) {
+				}
+				logger.info("buffer size file:" + buffer.length);
+				logger.info("_path:" + _path);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				throw e;
+			} finally {
+				try {
+					if (fis != null)
+						fis.close();
+				} catch (Exception e2) {
+					logger.error(e2.getMessage(), e2);
+				}
+			}
+		}
+		return buffer;
+	}
+
+	public static void creatfileDeviceMemory(Context _context, byte[] _data,
+			String _path, String namefile) throws Exception {
+		logger.info("_data.length:" + _data.length);
+		boolean isWritable = FileManager.isExternalStorageWritable();
+//		if (isWritable) {
+			File photo = new File(_path);
+			if (!photo.exists()) {
+				photo.mkdirs();
+			}
+			photo = new File(_path + namefile);
+			if (photo.exists()) {
+				photo.delete();
+			}
+			photo.createNewFile();
+
+			try {
+				FileOutputStream fos = new FileOutputStream(photo.getPath());
+
+				fos.write(_data, 0, _data.length);
+				fos.close();
+			} catch (java.io.IOException e) {
+				Log.e("PictureDemo", "Exception in photoCallback", e);
+			}
+//		}else{
+//			
+//		}
+
+	}
+
+	public static boolean isAvailable() {
+		String state = Environment.getExternalStorageState();
+		if (Environment.MEDIA_MOUNTED.equals(state)
+				|| Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+			return true;
+		}
+		return false;
+	}
+
+	public static void ghiFile(String _data, String _path) throws Exception {
+		try {
+
+			FileWriter fw = new FileWriter(_path, true); // the true will append
+															// the new data
+			fw.write(_data);// appends the string to the file
+			fw.close();
+		} catch (IOException ioe) {
+			System.err.println("IOException: " + ioe.getMessage());
+		}
+
+	}
+
+	
+
+	public static void clearBitmap(Bitmap bm) {
+		if (bm != null) {
+			bm.recycle();
+			// System.gc();
+		}
+	}
+}

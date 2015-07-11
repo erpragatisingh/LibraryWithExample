@@ -1,0 +1,421 @@
+package com.vnpay.vntalk.util;
+
+/**
+ * @History
+ * �����κ� �˻� : rainsmarch �� �˻�
+ * --------------------------------------------------------------------------
+ *      ��¥                      ������                                                                 �������
+ * --------------------------------------------------------------------------
+ *     2012-03-30             - Crop ���� �ػ� ���� CROP_MAX_SIZE = 440
+ * --------------------------------------------------------------------------
+ */
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.apache.log4j.Logger;
+
+import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.media.CamcorderProfile;
+import android.net.Uri;
+import android.os.Environment;
+import android.os.Handler;
+import android.provider.MediaStore;
+import android.util.Log;
+
+public class MyMedia {
+	public static final int CROP_MAX_SIZE = 410;
+	static Logger logger = Logger.getLogger(MyMedia.class);
+
+	public static final int MAIN_PICTURE_HEIGHT = 244;
+	public static final int MAIN_PICTURE_WIDTH = 290;
+	public static Uri mCaptureUri;
+	public static final int MINIMUM_FREE_SIZE = 200; // 200 MB
+	public static final int RECODE_CROP_CALLERY_IMAGE = 123;
+	public static final int RECODE_CROP_TAKEPICTURE_IMAGE = 124;
+	/** Request code define **/
+	public static final int RECODE_GET_GALLERY_IMAGE = 119;
+
+	public static final int RECODE_GET_GALLERY_IMAGE_PREVIEW = 125;
+	public static final int RECODE_GET_GALLERY_MOVIE = 121;
+	public static final int RECODE_GET_TAKEPICTURE_IMAGE = 120;
+	public static final int RECODE_GET_TAKEPICTURE_MOVIE = 122;
+	public static final String TEMP_PICTURE_FILENAME = "IMG_";
+	/** Thread **/
+	public static final int THREAD_FAIL_MEDIA = 17364;
+	public static final int THREAD_LACK_MEMORY = 17365;
+
+	public static String getMoviePath(Activity activity, Uri _uri) {
+		String mPath = "";
+		String[] projection = { MediaStore.Video.VideoColumns.DATA };
+		Cursor cursor = activity.managedQuery(_uri, projection, null, null,
+				null);
+		int column_index = cursor
+				.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DATA);
+		cursor.moveToFirst();
+
+		mPath = cursor.getString(column_index);
+		cursor.close();
+		return mPath;
+	}
+
+	public static int getMovieSize(Activity activity, Uri _uri) {
+		int mSize = 0;
+		String[] projection = { MediaStore.Video.VideoColumns.SIZE };
+		Cursor cursor = activity.managedQuery(_uri, projection, null, null,
+				null);
+		int column_index = cursor
+				.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.SIZE);
+		cursor.moveToFirst();
+
+		mSize = cursor.getInt(column_index);
+		cursor.close();
+		return mSize;
+	}
+
+	public static void goCropImage(Context context, Activity activity,
+			Handler mHandler, int requestCode, Uri _uri, int imgWidth,
+			int imgHeight) {
+		int width = 0;
+		int height = 0;
+		int cropWidth = 0;
+		int cropHeight = 0;
+
+		Bitmap mBitmap = null;
+		Uri mUri = null;
+
+		switch (requestCode) {
+		case RECODE_GET_GALLERY_IMAGE:
+			mUri = _uri;
+			break;
+		case RECODE_GET_TAKEPICTURE_IMAGE:
+			mUri = mCaptureUri;
+			break;
+		}
+		if (mUri != null) {
+			try {
+				mBitmap = FileManager.file2bitmap(context, mUri);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				mHandler.sendEmptyMessage(THREAD_FAIL_MEDIA);
+				return;
+			}
+			width = mBitmap.getWidth();
+			height = mBitmap.getHeight();
+		} else {
+			mHandler.sendEmptyMessage(THREAD_FAIL_MEDIA);
+			return;
+		}
+
+		Intent intent = new Intent("com.android.camera.action.CROP");
+		intent.setDataAndType(mUri, "image/*");
+		if (imgWidth <= 0 || imgHeight <= 0) {
+			cropWidth = width;
+			cropHeight = height;
+
+			if (width > height) {
+				if (width > CROP_MAX_SIZE) {
+					cropHeight = (height * CROP_MAX_SIZE) / width;
+					cropWidth = CROP_MAX_SIZE;
+				}
+			} else {
+				if (height > CROP_MAX_SIZE) {
+					cropWidth = (width * CROP_MAX_SIZE) / height;
+					cropHeight = CROP_MAX_SIZE;
+				}
+			}
+		} else {
+			cropWidth = imgWidth;
+			cropHeight = imgHeight;
+
+			if (imgWidth > imgHeight) {
+				if (imgWidth > CROP_MAX_SIZE) {
+					cropHeight = (imgHeight * CROP_MAX_SIZE) / imgWidth;
+					cropWidth = CROP_MAX_SIZE;
+				}
+			} else {
+				if (imgHeight > CROP_MAX_SIZE) {
+					cropWidth = (imgWidth * CROP_MAX_SIZE) / imgHeight;
+					cropHeight = CROP_MAX_SIZE;
+				}
+			}
+		}
+		intent.putExtra("outputX", cropWidth);
+		intent.putExtra("outputY", cropHeight);
+		intent.putExtra("aspectX", cropWidth);
+		intent.putExtra("aspectY", cropHeight);
+		intent.putExtra("scale", true);
+		intent.putExtra("return-data", true);
+
+		switch (requestCode) {
+		case RECODE_GET_GALLERY_IMAGE:
+			activity.startActivityForResult(intent, RECODE_CROP_CALLERY_IMAGE);
+			break;
+		case RECODE_GET_TAKEPICTURE_IMAGE:
+			activity.startActivityForResult(intent,
+					RECODE_CROP_TAKEPICTURE_IMAGE);
+			break;
+		}
+	}
+
+	public static void goGetMovie(Activity activity, Handler mHandler) {
+		int freeMemory = Integer.parseInt(Utils.FormatSize2(Utils
+				.GetAvailableExternalMemorySize(logger)));
+		if (freeMemory < MINIMUM_FREE_SIZE) {
+			mHandler.sendEmptyMessage(THREAD_LACK_MEMORY);
+			return;
+		}
+		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		intent.setType("video/*");
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		try {
+			activity.startActivityForResult(intent, RECODE_GET_GALLERY_MOVIE);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+
+	public static void goGetPicture(Activity activity, Handler mHandler) {
+		int freeMemory = Integer.parseInt(Utils.FormatSize2(Utils
+				.GetAvailableExternalMemorySize(logger)));
+		if (freeMemory < MyMedia.MINIMUM_FREE_SIZE) {
+			mHandler.sendEmptyMessage(THREAD_LACK_MEMORY);
+			return;
+		}
+		// Intent intent = new Intent();
+		// intent.setType("image/*");
+		// intent.setAction(Intent.ACTION_GET_CONTENT);
+		// activity.startActivityForResult(Intent.createChooser(intent,
+		// "Select Picture"), RECODE_GET_GALLERY_IMAGE);
+		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		intent.setType("image/*");
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		try {
+			activity.startActivityForResult(intent, RECODE_GET_GALLERY_IMAGE);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+
+	}
+
+	public static void goGetPicture2You(Activity activity, Handler mHandler) {
+		int freeMemory = Integer.parseInt(Utils.FormatSize2(Utils
+				.GetAvailableExternalMemorySize(logger)));
+		if (freeMemory < MINIMUM_FREE_SIZE) {
+			mHandler.sendEmptyMessage(THREAD_LACK_MEMORY);
+			return;
+		}
+
+		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		intent.setType("image/*");
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		try {
+			activity.startActivityForResult(intent, RECODE_GET_GALLERY_IMAGE);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+
+	public static void goTakeMovie(Activity activity) {
+		String fileName = "captureTemp.mp4";
+		ContentValues values = new ContentValues();
+		values.put(MediaStore.Video.Media.TITLE, fileName);
+		Uri cameraVideoURI = activity.getContentResolver().insert(
+				MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
+
+		Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraVideoURI);
+		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY,
+				CamcorderProfile.QUALITY_480P);
+		intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 20000);
+		activity.startActivityForResult(intent, RECODE_GET_TAKEPICTURE_MOVIE);
+
+	}
+
+	public static String getPathVideoFromURI(Activity activity, Uri mVideoUri) {
+		String[] projection = { MediaStore.Video.Media.DATA,
+				MediaStore.Video.Media.SIZE };
+		Cursor cursor = activity.managedQuery(mVideoUri, projection, null,
+				null, null);
+		int column_index_data = cursor
+				.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+		int column_index_size = cursor
+				.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE);
+		String recordedVideoFilePath = "";
+		if (cursor.moveToFirst())
+			recordedVideoFilePath = cursor.getString(column_index_data);
+		return recordedVideoFilePath;
+	}
+
+	public static String getPathImageFromURI(Activity activity, Uri mImageUri) {
+		String[] projection = { MediaStore.Images.Media.DATA };
+		Cursor cursor = activity.managedQuery(mImageUri, projection, null,
+				null, null);
+		int column_index_data = cursor
+				.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+
+		String recordedVideoFilePath = "";
+		if (cursor.moveToFirst())
+			recordedVideoFilePath = cursor.getString(column_index_data);
+		return recordedVideoFilePath;
+	}
+
+	public static int countFirst = 0;
+	public static int countLast = 0;
+
+	public static void goTakePicture(Activity activity, Handler mHandler) {
+		final String[] columns = { MediaStore.Images.Media._ID };
+		Cursor imagecursor = activity.getContentResolver().query(
+				MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null,
+				null, null);
+		countFirst = imagecursor.getCount();
+		Log.d("cameraaaa", "count countFirst:" + countFirst);
+		// int freeMemory = Integer.parseInt(Utils.FormatSize2(Utils
+		// .GetAvailableExternalMemorySize(logger)));
+		// if (freeMemory < MINIMUM_FREE_SIZE) {
+		// mHandler.sendEmptyMessage(THREAD_LACK_MEMORY);
+		// return;
+		// }
+		//
+		// // mCaptureUri = null;
+		// Intent intent = new Intent(
+		// android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+		//
+		// // intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
+		// // android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+		// // String url = TEMP_PICTURE_FILENAME + "" +
+		// Constants.FORMAT_PICTURE;
+		//
+		// // mCaptureUri = Uri.fromFile(new File(Environment
+		// // .getExternalStorageDirectory(), url));
+		// // intent.putExtra(MediaStore.EXTRA_OUTPUT, mCaptureUri);
+		// intent.putExtra("return-data", true);
+		// activity.startActivityForResult(intent,
+		// RECODE_GET_TAKEPICTURE_IMAGE);
+		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		// takePictureIntent.putExtra("return-data", false);
+		File f = null;
+
+		try {
+			f = setUpPhotoFile();
+			Log.d("cameraaaa", "f:" + f);
+			mCurrentPhotoPath = f.getAbsolutePath();
+			takePictureIntent
+					.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
+		} catch (IOException e) {
+			e.printStackTrace();
+			f = null;
+			Log.d("cameraaaa", "IOException" );
+			mCurrentPhotoPath = null;
+		}
+		activity.startActivityForResult(takePictureIntent,
+				RECODE_GET_TAKEPICTURE_IMAGE);
+	}
+
+	public static String mCurrentPhotoPath;
+
+	public static void galleryAddPic(Context context, String mCurrentPhotoPath) {
+		// Intent mediaScanIntent = new
+		// Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+		// File f = new File(mCurrentPhotoPath);
+		// Uri contentUri = Uri.fromFile(f);
+		// mediaScanIntent.setData(contentUri);
+		// context.sendBroadcast(mediaScanIntent);
+		try {
+			final String[] columns = { MediaStore.Images.Media._ID };
+			Cursor imagecursor = context.getContentResolver().query(
+					MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns,
+					null, null, null);
+			Log.d("camera", "imagecursor:" + imagecursor);
+			countLast = imagecursor.getCount();
+			Log.d("camera", "count countLast:" + countLast);
+			if (countLast == countFirst) {
+
+				ContentValues values = new ContentValues();
+				values.put(MediaStore.Images.Media.DATA, mCurrentPhotoPath);
+				context.getContentResolver().insert(
+						MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+				Log.d("camera", "insertok:");
+				Thread.sleep(500);
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.d("camera", "insert  false");
+		}
+	}
+
+	private static final String JPEG_FILE_PREFIX = "IMG_";
+	private static final String JPEG_FILE_SUFFIX = ".jpg";
+
+	private static File createImageFile() throws IOException {
+		// Create an image file name
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
+				.format(new Date());
+		String imageFileName = JPEG_FILE_PREFIX + timeStamp + "_";
+		File albumF = getAlbumDir();
+		File imageF = File.createTempFile(imageFileName, JPEG_FILE_SUFFIX,
+				albumF);
+		return imageF;
+	}
+
+	public static File getAlbumDir() {
+		File storageDir = null;
+
+		if (Environment.MEDIA_MOUNTED.equals(Environment
+				.getExternalStorageState())) {
+
+			storageDir = new File(
+					Environment
+							.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
+					"Camera");
+
+			if (storageDir != null) {
+				if (!storageDir.mkdirs()) {
+					if (!storageDir.exists()) {
+						Log.d("CameraSample", "failed to create directory");
+						return null;
+					}
+				}
+			}
+
+		} else {
+			Log.v("Camera", "External storage is not mounted READ/WRITE.");
+		}
+
+		return storageDir;
+	}
+
+	private static File setUpPhotoFile() throws IOException {
+
+		File f = createImageFile();
+
+		return f;
+	}
+
+	public static void removeTempImage() {
+		if (mCaptureUri != null) {
+			File mFile = new File(mCaptureUri.getPath());
+			if (mFile.exists()) {
+				mFile.delete();
+			}
+			mCaptureUri = null;
+		}
+	}
+
+	public static void removeTempImage(String path) {
+		if (mCaptureUri != null) {
+			File mFile = new File(path);
+			if (mFile.exists()) {
+				mFile.delete();
+			}
+
+		}
+	}
+}

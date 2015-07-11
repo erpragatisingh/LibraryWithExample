@@ -1,0 +1,228 @@
+package com.vnpay.vntalk.util;
+
+import java.util.Vector;
+
+public class ValidateDefaut implements IValidate {
+
+	public static final int TYPEOBJECT_ACCEPT = 32;
+	public static final int TYPEOBJECT_ACCOUNT = 1;
+	public static final int TYPEOBJECT_ACCOUNTREVEIVER = 2;
+	public static final int TYPEOBJECT_ACCOUNTSOURCE = 35;
+	public static final int TYPEOBJECT_ACTIVECODE = 22;
+	public static final int TYPEOBJECT_ADULT = 44;
+	public static final int TYPEOBJECT_AMOUNT = 15;
+	public static final int TYPEOBJECT_BANKCITAD = 27;
+	public static final int TYPEOBJECT_BIRTHDAY = 48;
+	public static final int TYPEOBJECT_BOOKINGCODE = 18;
+	public static final int TYPEOBJECT_BRANCH = 29;
+	public static final int TYPEOBJECT_CARD = 37;
+	public static final int TYPEOBJECT_CHILD = 45;
+	public static final int TYPEOBJECT_CUSTOMERCODE = 17;
+	public static final int TYPEOBJECT_CUSTOMERRECEIVERNAME = 30;
+	public static final int TYPEOBJECT_DATETIME = 21;
+	public static final int TYPEOBJECT_DATETIMEDEPART = 42;
+	public static final int TYPEOBJECT_DATETIMERETURN = 43;
+	public static final int TYPEOBJECT_DESTINATION = 41;
+	public static final int TYPEOBJECT_EMAIL = 49;
+	public static final int TYPEOBJECT_FULLNAME = 19;
+	public static final int TYPEOBJECT_INFANT = 46;
+	public static final int TYPEOBJECT_INFO = 25;
+	public static final int TYPEOBJECT_LOGINID = 36;
+	public static final int TYPEOBJECT_NAME = 47;
+	public static final int TYPEOBJECT_NEWPASSWORD = 6;
+	public static final int TYPEOBJECT_NUMBERPHONE = 16;
+	public static final int TYPEOBJECT_OLDPASSWORD = 5;
+	public static final int TYPEOBJECT_ORIGIN = 40;
+	public static final int TYPEOBJECT_OTP = 24;
+	public static final int TYPEOBJECT_PASSWORD = 3;
+	public static final int TYPEOBJECT_PHONE = 50;
+	public static final int TYPEOBJECT_PHONEANOTHER = 51;
+	public static final int TYPEOBJECT_POLICY = 52;
+	public static final int TYPEOBJECT_PROVINCE = 28;
+	public static final int TYPEOBJECT_REACTIVECODE = 39;
+	public static final int TYPEOBJECT_REASONTRANSFER = 26;
+	public static final int TYPEOBJECT_RENEWPASSWORD = 7;
+	public static final int TYPEOBJECT_REPASSWORD = 4;
+	public static final int TYPEOBJECT_SOSO = 20;
+	public static final int TYPEOBJECT_STUDENT = 33;
+	public static final int TYPEOBJECT_TERM = 31;
+	public static final int TYPEOBJECT_TRANSFERTYPE = 53;
+	public static final int TYPEOBJECT_VALUTETOPUP = 34;
+	public static final int TYPEOBJECT_VPBS = 38;
+	public static final int TYPEOBJECT_ADDRESS = 999;
+	public static final int TYPEOBJECT_SERVICE = 59;
+	public static final int TYPEOBJECT_PROVIDER = 58;
+	private Validation mValidation;
+
+	public ValidateDefaut() {
+		super();
+		mValidation = new Validation("VN");
+	}
+
+	public String ValidateNull(boolean input, int TypeObject) {
+		Vector<Object> output = new Vector<Object>();
+		switch (TypeObject) {
+		case TYPEOBJECT_POLICY:
+			output = mValidation.checkNull_Policy(input);
+			break;
+		}
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+	public String ValidateNull(String input) {
+		return null;
+	}
+
+	public String ValidateNull(String input, int TypeObject) {
+		Vector<Object> output = new Vector<Object>();
+		switch (TypeObject) {
+		case TYPEOBJECT_LOGINID:
+			output = mValidation.checkNull_LoginID(input);
+			break;
+		case TYPEOBJECT_ACCOUNT:
+			output = mValidation.checkNull_Account(input);
+			break;
+		case TYPEOBJECT_ACCOUNTREVEIVER:
+			output = mValidation.checkNull_AccountReceiver(input);
+			break;
+		case TYPEOBJECT_ACCOUNTSOURCE:
+			output = mValidation.checkNull_AccountSource(input);
+			break;
+		case TYPEOBJECT_DATETIME:
+			output = mValidation.checkNull_DateTime(input);
+			break;
+		case TYPEOBJECT_SERVICE:
+			output = mValidation.checkNull_Service(input);
+			break;
+		case TYPEOBJECT_PROVIDER:
+			output = mValidation.checkNull_Provider(input);
+			break;
+		case TYPEOBJECT_ACTIVECODE:
+			output = mValidation.checkNull_ActiveCode(input);
+			break;
+		case TYPEOBJECT_REACTIVECODE:
+			output = mValidation.checkNull_ReActiveCode(input);
+			break;
+		case TYPEOBJECT_AMOUNT:
+			output = mValidation.checkNull_Amount(input);
+			break;
+		case TYPEOBJECT_BOOKINGCODE:
+			output = mValidation.checkNull_BookingCode(input);
+			break;
+		case TYPEOBJECT_STUDENT:
+			output = mValidation.checkNull_Student(input);
+			break;
+		case TYPEOBJECT_CUSTOMERCODE:
+			output = mValidation.checkNull_CustomerCode(input);
+			break;
+		case TYPEOBJECT_FULLNAME:
+			output = mValidation.checkNull_FullName(input);
+			break;
+		case TYPEOBJECT_TERM:
+			output = mValidation.checkNull_Term(input);
+			break;
+		case TYPEOBJECT_INFO:
+			output = mValidation.checkNull_Info(input);
+			break;
+		case TYPEOBJECT_REASONTRANSFER:
+			output = mValidation.checkNull_ReasonTransfer(input);
+			break;
+		case TYPEOBJECT_NUMBERPHONE:
+			output = mValidation.checkNull_PhoneNumber(input);
+			break;
+		case TYPEOBJECT_NEWPASSWORD:
+			output = mValidation.checkNull_NewPassword(input);
+			break;
+		case TYPEOBJECT_OTP:
+			output = mValidation.checkNull_OTP(input);
+			break;
+		case TYPEOBJECT_ACCEPT:
+			output = mValidation.checkNull_Accept(input);
+			break;
+		case TYPEOBJECT_OLDPASSWORD:
+			output = mValidation.checkNull_OldPassword(input);
+			break;
+		case TYPEOBJECT_PASSWORD:
+			output = mValidation.checkNull_Password(input);
+			break;
+		case TYPEOBJECT_REPASSWORD:
+			output = mValidation.checkNull_RePassword(input);
+			break;
+		case TYPEOBJECT_RENEWPASSWORD:
+			output = mValidation.checkNull_ReNewPassword(input);
+			break;
+		case TYPEOBJECT_SOSO:
+			output = mValidation.checkNull_Soso(input);
+			break;
+		case TYPEOBJECT_BANKCITAD:
+			output = mValidation.checkNull_BankName(input);
+			break;
+		case TYPEOBJECT_PROVINCE:
+			output = mValidation.checkNull_Province(input);
+			break;
+		case TYPEOBJECT_BRANCH:
+			output = mValidation.checkNull_Branch(input);
+			break;
+		case TYPEOBJECT_CUSTOMERRECEIVERNAME:
+			output = mValidation.checkNull_CustomerReceiverName(input);
+			break;
+		case TYPEOBJECT_VALUTETOPUP:
+			output = mValidation.checkNull_ValueTopup(input);
+			break;
+		case TYPEOBJECT_CARD:
+			output = mValidation.checkNull_Card(input);
+			break;
+		case TYPEOBJECT_VPBS:
+			output = mValidation.checkNull_VPBSCode(input);
+			break;
+		case TYPEOBJECT_ORIGIN:
+			output = mValidation.checkNull_Origin(input);
+			break;
+		case TYPEOBJECT_DESTINATION:
+			output = mValidation.checkNull_Destination(input);
+			break;
+		case TYPEOBJECT_DATETIMEDEPART:
+			output = mValidation.checkNull_DateTimeDepart(input);
+			break;
+		case TYPEOBJECT_DATETIMERETURN:
+			output = mValidation.checkNull_DateTimeReturn(input);
+			break;
+		case TYPEOBJECT_ADULT:
+			output = mValidation.checkNull_Adult(input);
+			break;
+		case TYPEOBJECT_CHILD:
+			output = mValidation.checkNull_Child(input);
+			break;
+		case TYPEOBJECT_INFANT:
+			output = mValidation.checkNull_Infant(input);
+			break;
+		case TYPEOBJECT_NAME:
+			output = mValidation.checkNull_Name(input);
+			break;
+		case TYPEOBJECT_BIRTHDAY:
+			output = mValidation.checkNull_Birthday(input);
+			break;
+		case TYPEOBJECT_EMAIL:
+			output = mValidation.checkNull_Email(input);
+			break;
+		case TYPEOBJECT_PHONE:
+			output = mValidation.checkNull_Phone(input);
+			break;
+		case TYPEOBJECT_PHONEANOTHER:
+			output = mValidation.checkNull_PhoneAnother(input);
+			break;
+		case TYPEOBJECT_ADDRESS:
+			output = mValidation.checkNull_Address(input);
+			break;
+		case TYPEOBJECT_TRANSFERTYPE:
+			output = mValidation.checkNull_TransferTyper(input);
+			break;
+		}
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+}

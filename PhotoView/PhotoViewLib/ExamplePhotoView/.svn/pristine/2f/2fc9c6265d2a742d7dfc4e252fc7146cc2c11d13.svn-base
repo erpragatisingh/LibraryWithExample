@@ -1,0 +1,54 @@
+package com.vnpay.vntalk.util;
+
+import java.util.Vector;
+
+import org.apache.log4j.Logger;
+
+
+
+
+public class Validate_PhoneNumberDecorator implements IValidate {
+
+	private final int EQUALLENGTH = 0;
+	private final IValidate IVALIDATE;
+	private final int MAXLENGTH = 13;
+	private final int MINLENGTH = 10;
+	private Validation mValidation;
+
+	public Validate_PhoneNumberDecorator(IValidate validateDefaut) {
+		this.IVALIDATE = validateDefaut;
+		mValidation = new Validation("VN");
+	}
+
+	public String ValidateFormat(Logger logger, String input) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkFormat_PhoneNumber1(logger, input);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+	public String ValidateFormatLength(String input) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkFormat_PhoneNumber(input, MINLENGTH,
+				MAXLENGTH, EQUALLENGTH);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+	@Override
+	public String ValidateNull(boolean input, int TypeObject) {
+		return null;
+	}
+
+	public String ValidateNull(String input) {
+		return this.IVALIDATE.ValidateNull(input,
+				ValidateDefaut.TYPEOBJECT_NUMBERPHONE);
+	}
+
+	public String ValidateNull(String input, int TypeObject) {
+		return this.IVALIDATE.ValidateNull(input, TypeObject);
+	}
+
+}

@@ -1,0 +1,415 @@
+package com.vnpay.vntalk.util;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
+import org.apache.log4j.Logger;
+
+public class Utils_Date {
+	static Logger logger = Logger.getLogger(Utils_Date.class);
+
+	// 20131104 - > 04/11/2013
+	public static String convertDate(Logger logger, String date) {
+		try {
+			return date.subSequence(6, date.length()) + "/"
+					+ date.subSequence(4, 6) + "/" + date.subSequence(0, 4);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	// 1800 - > 18:00
+	public static String convertTime(String Time) {
+		return Time.subSequence(0, 2) + ":" + Time.substring(2, Time.length());
+	}
+
+	public static Calendar getCalendarAddTime(Calendar begin, long addTime) {
+		Calendar rCal = (Calendar) begin.clone();
+		Date rDate = rCal.getTime();
+		long rTime = rDate.getTime() + addTime;
+		rDate.setTime(rTime);
+		rCal.setTime(rDate);
+		return rCal;
+	}
+
+	public static Calendar getCalendarFromForm(String _date, String _form) {
+		SimpleDateFormat sdf = new SimpleDateFormat(_form, Locale.getDefault());
+		Calendar mCalendar = Calendar.getInstance();
+		Date mDate = null;
+		try {
+			mDate = sdf.parse(_date);
+		} catch (Exception e) {
+			return null;
+		}
+		mCalendar.setTime(mDate);
+		return mCalendar;
+	}
+
+	public static long getCompareDate(long form, long to) {
+		long d = to - form;
+		d = d / 1000 / 60 / 60 / 24;
+		return d;
+	}
+
+	public static int getCurrentAPM() {
+		Calendar cTime = Calendar.getInstance();
+		cTime.setTimeZone(TimeZone.getTimeZone("GMT+7"));
+		return cTime.get(Calendar.AM_PM);
+	}
+
+	public static int getCurrentDate() {
+		Calendar cTime = Calendar.getInstance();
+		cTime.setTimeZone(TimeZone.getTimeZone("GMT+7"));
+		return cTime.get(Calendar.DATE);
+	}
+
+	public static int getCurrentHour() {
+		Calendar cTime = Calendar.getInstance();
+		cTime.setTimeZone(TimeZone.getTimeZone("GMT+7"));
+		return cTime.get(Calendar.HOUR_OF_DAY);
+	}
+
+	public static int getCurrentMinute() {
+		Calendar cTime = Calendar.getInstance();
+		cTime.setTimeZone(TimeZone.getTimeZone("GMT+7"));
+		return cTime.get(Calendar.MINUTE);
+	}
+
+	public static int getCurrentMonth() {
+		Calendar cTime = Calendar.getInstance();
+		return cTime.get(Calendar.MONTH) + 1;
+	}
+
+	public static int getCurrentSecond() {
+		Calendar cTime = Calendar.getInstance();
+		cTime.setTimeZone(TimeZone.getTimeZone("GMT+7"));
+		return cTime.get(Calendar.SECOND);
+	}
+
+	public static long getcurrentTimeMillis() {
+		return System.currentTimeMillis();
+	}
+
+	public static String getCurrentTimeMillis() {
+		return "" + System.currentTimeMillis();
+	}
+
+	public static int getCurrentYear() {
+		Calendar cTime = Calendar.getInstance();
+		cTime.setTimeZone(TimeZone.getTimeZone("GMT+7"));
+		return cTime.get(Calendar.YEAR);
+	}
+
+	public static String getDate(String _date) {
+		if (_date == null || _date.length() <= 0)
+			return "00";
+		return _date.substring(8, 10);
+	}
+
+	public static boolean getDay(long formTime, long toTime) {
+//		ContextComont.log(Utils_Date.class, "formTime:" + formTime);
+//		ContextComont.log(Utils_Date.class, "  toTime:" + toTime);
+		Calendar form = Calendar.getInstance();
+		form.setTimeZone(TimeZone.getTimeZone("GMT+7"));
+		form.setTimeInMillis(formTime);
+		form.set(Calendar.HOUR_OF_DAY, 0);
+		form.set(Calendar.MINUTE, 0);
+		form.set(Calendar.SECOND, 0);
+		form.set(Calendar.MILLISECOND, 0);
+		form.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+		int formYEAR = form.get(Calendar.YEAR);
+		int formMONTH = form.get(Calendar.MONTH);
+		int formDATE = form.get(Calendar.DATE);
+
+		Calendar to = Calendar.getInstance();
+		form.setTimeZone(TimeZone.getTimeZone("GMT+7"));
+		form.setTimeInMillis(toTime);
+		to.set(Calendar.HOUR_OF_DAY, 0);
+		to.set(Calendar.MINUTE, 0);
+		to.set(Calendar.SECOND, 0);
+		to.set(Calendar.MILLISECOND, 0);
+		to.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+		int toYEAR = to.get(Calendar.YEAR);
+		int toMONTH = to.get(Calendar.MONTH);
+		int toDATE = to.get(Calendar.DATE);
+
+		if (toYEAR > formYEAR) {
+			return true;
+
+		} else if (toYEAR < formYEAR) {
+			return false;
+
+		} else {
+			if (toMONTH > formMONTH) {
+				return true;
+
+			} else if (toMONTH < formMONTH) {
+				return false;
+
+			} else {
+				if (toDATE > formDATE) {
+					return true;
+
+				} else {
+					return false;
+				}
+			}
+		}
+
+	}
+
+	public static long getDiffOfDate(Calendar begin, Calendar end) {
+		Calendar mBegin = (Calendar) begin.clone();
+		Calendar mEnd = (Calendar) end.clone();
+
+		mBegin.set(Calendar.HOUR_OF_DAY, 0);
+		mBegin.set(Calendar.MINUTE, 0);
+		mBegin.set(Calendar.SECOND, 0);
+		mBegin.set(Calendar.MILLISECOND, 0);
+		mBegin.set(Calendar.MILLISECOND, 0);
+		mBegin.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+		mEnd.set(Calendar.HOUR_OF_DAY, 0);
+		mEnd.set(Calendar.MINUTE, 0);
+		mEnd.set(Calendar.SECOND, 0);
+		mEnd.set(Calendar.MILLISECOND, 0);
+		mEnd.set(Calendar.MILLISECOND, 0);
+		mEnd.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+		long diff = getDiffOfTime(mBegin, mEnd);
+		return diff / (24 * 60 * 60 * 1000);
+	}
+
+	public static long getDiffOfTime(Calendar begin, Calendar end) {
+		Date beginDate = begin.getTime();
+		Date endDate = end.getTime();
+		long diff = endDate.getTime() - beginDate.getTime();
+		return diff;
+	}
+
+	public static String getDisplayDateForm(String _date) {
+		Calendar mCal = getCalendarFromForm(_date, Define.FULLTIME_FORMAT_24);
+		String result = mCal.get(Calendar.DAY_OF_MONTH) + "/";
+		result = result + (mCal.get(Calendar.MONTH) + 1) + "/";
+		result = result + mCal.get(Calendar.YEAR);
+		return result;
+	}
+
+	public static String getDisplayDateFormWithoutYear(Calendar mCal) {
+		String result = (mCal.get(Calendar.MONTH) + 1) + "Tháng";
+		result = result + mCal.get(Calendar.DAY_OF_MONTH) + "Ngày ";
+		result = result + "("
+				+ getStringDayOfWeek(mCal.get(Calendar.DAY_OF_WEEK)) + ")";
+		return result;
+	}
+
+	public static String getDisplayDateFormWithoutYear(String _date) {
+		Calendar mCal = getCalendarFromForm(_date, Define.FULLTIME_FORMAT_24);
+		String result = (mCal.get(Calendar.MONTH) + 1) + "Tháng ";
+		result = result + mCal.get(Calendar.DAY_OF_MONTH) + "Ngày";
+		result = result + "("
+				+ getStringDayOfWeek(mCal.get(Calendar.DAY_OF_WEEK)) + ")";
+		return result;
+	}
+
+	public static String getDisplayTime(long time) {
+		String mTime = getFormatTime("yyyy-MM-dd HH:mm:ss", time);
+
+		String mResult = "";
+		if (mTime == null || mTime.length() <= 0)
+			return "0";
+		int mHour = Integer.parseInt(mTime.substring(11, 13));
+		String mMinute = mTime.substring(14, 16);
+		mResult = mResult + mHour + ":" + mMinute;
+		return mResult;
+	}
+
+	public static String getDisplayTime(String mTime) {
+
+		String mResult = "";
+		if (mTime == null || mTime.length() <= 0)
+			return "0";
+		int mHour = Integer.parseInt(mTime.substring(11, 13));
+		String mMinute = mTime.substring(14, 16);
+		mResult = mResult + mHour + ":" + mMinute;
+		return mResult;
+	}
+
+	public static String getDisplayTimeForm(String _time) {
+		Calendar mCal = getCalendarFromForm(_time, Define.FULLTIME_FORMAT_24);
+		int apm = mCal.get(Calendar.AM_PM);
+		String mTime = getFormFromCalendar(mCal, Define.TIME_FORMAT_12);
+
+		if (apm == Calendar.AM)
+			mTime = "AM " + mTime;
+		else
+			mTime = "PM " + mTime;
+		return mTime;
+	}
+
+	/**
+	 * @param time
+	 *            yyyy-MM-dd HH:mm:ss chua format
+	 * @return
+	 */
+	public static String getDisplayTimeFormat(String time) {
+		String mTime = getFormatTime("yyyy-MM-dd HH:mm:ss", time);
+
+		String mResult = "";
+		if (mTime == null || mTime.length() <= 0)
+			return "0";
+		int mHour = Integer.parseInt(mTime.substring(11, 13));
+		String mMinute = mTime.substring(14, 16);
+		mResult = mResult + mHour + ":" + mMinute;
+		return mResult;
+	}
+
+	public static String getFormatCurrentTime(String form) {
+		SimpleDateFormat formatter = new SimpleDateFormat(form,
+				Locale.getDefault());
+		Calendar cTime = Calendar.getInstance();
+		cTime.setTimeZone(TimeZone.getTimeZone("GMT+7"));
+		Date d = cTime.getTime();
+		return formatter.format(d);
+	}
+
+	public static String getFormatCurrentTime(String form, String time) {
+		SimpleDateFormat formatter = new SimpleDateFormat(form,
+				Locale.getDefault());
+		Calendar cTime = Calendar.getInstance();
+		cTime.setTimeZone(TimeZone.getTimeZone("GMT+7"));
+		cTime.setTimeInMillis(Long.parseLong(time));
+
+		Date d = cTime.getTime();
+		return formatter.format(d);
+	}
+
+	public static String getFormatTime(String form, long time) {
+		SimpleDateFormat formatter = new SimpleDateFormat(form,
+				Locale.getDefault());
+		return formatter.format(new Date(time));
+	}
+
+	public static String getFormatTime(String form, String time) {
+		SimpleDateFormat formatter = new SimpleDateFormat(form,
+				Locale.getDefault());
+		return formatter.format(new Date(Long.parseLong(time)));
+	}
+
+	public static String getFormFromCalendar(Calendar _calendar, String _form) {
+		try {
+			SimpleDateFormat format = new SimpleDateFormat(_form,
+					Locale.getDefault());
+			Date mDate = _calendar.getTime();
+
+			return format.format(mDate);
+		} catch (Exception ex) {
+			return "";
+		}
+	}
+
+	public static long getMilliTimeFromForm(String form) {
+		Calendar mCal = getCalendarFromForm(form, Define.FULLTIME_FORMAT_24);
+		Date mDate = mCal.getTime();
+		return mDate.getTime();
+	}
+
+	public static String getMonth(String _date) {
+		if (_date == null || _date.length() <= 0)
+			return "00";
+		return _date.substring(5, 7);
+	}
+
+	public static String getStringDayOfWeek(int dayOfWeek) {
+		String mDay = "";
+
+		switch (dayOfWeek) {
+		case Calendar.SUNDAY:
+			mDay = "Làm việc";
+			break;
+		case Calendar.MONDAY:
+			mDay = "Tháng";
+			break;
+		case Calendar.TUESDAY:
+			mDay = "Tức giận";
+			break;
+		case Calendar.WEDNESDAY:
+			mDay = "Số";
+			break;
+		case Calendar.THURSDAY:
+			mDay = "Cổ";
+			break;
+		case Calendar.FRIDAY:
+			mDay = "Vàng";
+			break;
+		case Calendar.SATURDAY:
+			mDay = "Ngồi";
+			break;
+		}
+		return mDay;
+	}
+
+	public static long getTimeFromString(String time) {
+		try {
+			final Calendar cal = Calendar.getInstance();
+			int day = Integer.parseInt(time.substring(0, 2));
+			int month = Integer.parseInt(time.substring(3, 5));
+			int year = Integer.parseInt(time.substring(6, 10));
+			cal.set(Calendar.YEAR, year);
+			cal.set(Calendar.MONTH, month - 1);
+			cal.set(Calendar.DAY_OF_MONTH, day);
+
+			cal.set(Calendar.HOUR_OF_DAY, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.MILLISECOND, 0);
+			cal.set(Calendar.MILLISECOND, 0);
+			cal.setTimeZone(TimeZone.getTimeZone("UTC"));
+			return cal.getTimeInMillis();
+		} catch (Exception exception) {
+			return System.currentTimeMillis();
+		}
+	}
+
+	public static String getYear(String _date) {
+		if (_date == null || _date.length() <= 0)
+			return "0000";
+		return _date.substring(0, 4);
+	}
+
+	public static boolean isSameDate(String _date1, String _date2) {
+		int temp1 = 0;
+		int temp2 = 0;
+
+		temp1 = Integer.parseInt(getYear(_date1));
+		temp2 = Integer.parseInt(getYear(_date2));
+		if (temp1 < temp2)
+			return true;
+		else if (temp1 > temp2)
+			return false;
+
+		temp1 = Integer.parseInt(getMonth(_date1));
+		temp2 = Integer.parseInt(getMonth(_date2));
+
+		if (temp1 < temp2)
+			return true;
+		else if (temp1 > temp2)
+			return false;
+
+		temp1 = Integer.parseInt(getDate(_date1));
+		temp2 = Integer.parseInt(getDate(_date2));
+
+		if (temp1 <= temp2)
+			return true;
+		else
+			return false;
+
+	}
+
+}

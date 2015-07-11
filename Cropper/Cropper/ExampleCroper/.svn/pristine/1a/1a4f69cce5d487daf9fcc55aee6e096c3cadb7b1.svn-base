@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="color_select">#802ad3</color>
+    <color name="color_select_emo">#cccccc</color>
+    <color name="color_unselect_emo">#f2f2f2</color>
+    <color name="gray">#515151</color>
+    <color name="gray1">#b1b1b1</color>
+    <color name="gray2">#d7d7d7</color>
+    <color name="gray4">#d9d9d9</color>
+    <color name="gray5">#dadada</color>
+    <color name="color_gray_light">#99C9C9C9</color>
+    <color name="colorListGray">#f2f2f2</color>
+    <color name="white">#ffffff</color>
+    <color name="blue">#2962d4</color>
+    <color name="black">#3c3c3c</color>
+    <color name="black1">#000000</color>
+    <color name="yellow">#F98800</color>
+    <color name="blue3">#a1bfcf</color>
+    <color name="Red">#B2080C</color>
+    <color name="Red1">#fe1313</color>
+    <color name="Red2">#9a2637</color>
+    <color name="Green1">#01a050</color>
+    <color name="diary_line">#ffd1a54a</color>
+    <color name="trans">#00000000</color>
+    <color name="bgcommont">#dcdcdc</color>
+    <color name="bgline">#b1b1b1</color>
+    <color name="bgchat3">#4d1662</color>
+    <color name="bgchat4">#a1283a</color>
+    <color name="bgchat5">#ff9600</color>
+    <color name="bgchat6">#1b3065</color>
+    <color name="bgchat7">#1b652c</color>
+    <color name="bgchat8">#606060</color>
+    <color name="commont">#484848</color>
+    <color name="blue_ttck">#26aa4b</color>
+    <color name="red_ttck">#ea1c3c</color>
+    <color name="orange">#e69f30</color>
+    <color name="blue_duong_ttck">#66c3d0</color>
+    <color name="hong_ttck">#ff00ff</color>
+    <color name="bg_ttgd">#f7f7f7</color>
+    <color name="bg_header_table">#e3e3e3</color>
+    <color name="bg_row_table">#f2f2f2</color>
+    <color name="bg_chart">#ebf0ff</color>
+    <color name="bg_chart_in">#f9f0f1</color>
+    <color name="bg_header">#9e9e9e</color>
+    <color name="bg_chart_border">#c3c3c3</color>
+    <color name="bg_chart_line_In">#a3293b</color>
+    <color name="colornavigate">#a3293b</color>
+    <color name="colortabhorver">#891b2c</color>
+    <color name="bg_chart_line_balance">#ff8a00</color>
+    <color name="boder_edt_add_contact">#e5e5e5</color>
+    <color name="bg_edt_add_contact">#f3f3f3</color>
+    <color name="text_line_balance">#2294ff</color>
+
+</resources>

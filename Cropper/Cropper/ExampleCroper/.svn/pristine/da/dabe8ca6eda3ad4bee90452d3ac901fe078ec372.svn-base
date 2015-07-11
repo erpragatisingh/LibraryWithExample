@@ -1,0 +1,95 @@
+package com.vnpay.vntalk.util;
+
+import java.util.Vector;
+
+public class Validate_DateTimeDecorator implements IValidate {
+
+	private final int EQUALLENGTH = 0;
+	private final IValidate IVALIDATE;
+	private final int MAXLENGTH = 0;
+	private final int MINLENGTH = 0;
+	private Validation mValidation;
+
+	public Validate_DateTimeDecorator(IValidate validateDefaut) {
+		this.IVALIDATE = validateDefaut;
+		mValidation = new Validation("VN");
+	}
+
+	@Override
+	public String ValidateNull(boolean input, int TypeObject) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String ValidateNull(String input) {
+		return this.IVALIDATE.ValidateNull(input,
+				ValidateDefaut.TYPEOBJECT_DATETIME);
+	}
+
+	public String ValidateNull(String input, int TypeObject) {
+		return this.IVALIDATE.ValidateNull(input, TypeObject);
+	}
+
+	public String ValidateWrongDateTime(int Day1, int Month1, int Year1,
+			int Day2, int Month2, int Year2) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkWrong_Datetime(Day1, Month1, Year1, Day2,
+				Month2, Year2);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+	public String ValidateWrongDateTimeLocation(int Day1, int Month1,
+			int Year1, int Hour1, int Minuter1, int Day2, int Month2,
+			int Year2, int Hour2, int Minuter2) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkWrong_DatetimeLocation(Day1, Month1, Year1,
+				Hour1, Minuter1, Day2, Month2, Year2, Hour2, Minuter2);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+	public String ValidateWrongDateTimeLookUp(int Day, int Month, int Year) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkWrong_DatetimeLookUp(Day, Month, Year);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+	public String ValidateWrongDateTimeLookUp2(int Day1, int Month1, int Year1,
+			int Day2, int Month2, int Year2) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkWrong_DatetimeLookUp2(Day1, Month1, Year1,
+				Day2, Month2, Year2);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+	public String ValidateWrongDateTimeOrigin(int Day, int Month, int Year) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkWrong_DatetimeOrigin(Day, Month, Year);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+	public String ValidateWrongDateTimeReturn(int Day, int Month, int Year) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkWrong_DatetimeReturn(Day, Month, Year);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+	public String ValidateYearMin(int Yearmax, int YearMin, int Year) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkWrong_YearMin(Yearmax, YearMin, Year);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+}

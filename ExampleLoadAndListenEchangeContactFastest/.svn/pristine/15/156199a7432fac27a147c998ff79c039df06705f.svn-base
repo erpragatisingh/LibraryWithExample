@@ -1,0 +1,79 @@
+package com.vnpay.vntalk.util;
+
+import java.util.Vector;
+
+public class Validate_Guest implements IValidate {
+
+	private final int EQUALLENGTH = 0;
+	private final IValidate IVALIDATE;
+	private final int MAXLENGTH = 0;
+	private final int MINLENGTH = 0;
+	private Validation mValidation;
+
+	public Validate_Guest(IValidate validateDefaut) {
+		this.IVALIDATE = validateDefaut;
+		mValidation = new Validation("VN");
+	}
+
+	public String ValidateFormat(String input, String input1, String input2) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkFormat_Guest(input, input1, input2);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+	public String ValidateFormat1(String input, String input1, String input2) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkFormat_Guest1(input, input1, input2);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+	public String ValidateFormatBirthday(String input) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkWrong_DatetimeOrigin(input);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+	public String ValidateFormatName(String input) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkFormat_Name(input);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+	public String ValidateFormatName1(String input) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkFormat_Name1(input);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+	@Override
+	public String ValidateNull(boolean input, int TypeObject) {
+		return null;
+	}
+
+	public String ValidateNull(String input) {
+		return this.IVALIDATE.ValidateNull(input);
+	}
+
+	public String ValidateNull(String input, int TypeObject) {
+		return this.IVALIDATE.ValidateNull(input, TypeObject);
+	}
+
+	public String ValidateWrongEmail(String input) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkWrong_Email(input);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+}

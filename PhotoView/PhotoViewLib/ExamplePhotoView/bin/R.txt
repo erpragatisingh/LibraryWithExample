@@ -1,0 +1,5 @@
+int drawable demo_croper 0x7f020000
+int drawable ic_crop 0x7f020001
+int drawable ic_launcher 0x7f020002
+int id ivPreview 0x7f040000
+int layout preview_photoview 0x7f030000

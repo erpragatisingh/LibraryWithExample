@@ -1,0 +1,80 @@
+package com.vnpay.vntalk.util;
+
+import java.util.Vector;
+
+public class Validate_PasswordAppDecorator implements IValidate {
+
+	private final int EQUALLENGTH = 0;
+	private final IValidate IVALIDATE;
+	private final int MAXLENGTH = 20;
+	private final int MINLENGTH = 6;
+	private Validation mValidation;
+
+	public Validate_PasswordAppDecorator(IValidate validateDefaut) {
+		this.IVALIDATE = validateDefaut;
+		mValidation = new Validation("VN");
+	}
+
+	public String ValidateFormat(String input) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkFormat_PasswordApp2(input);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+	public String ValidateFormatLBP(String input) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkFormat_PasswordAppLBP2(input);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+	public String ValidateFormatLenght(String input) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkFormat_PasswordApp(input);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+	public String ValidateMatchPassword(String input, String input2) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkMatch_ConfrimPasswordApplication(input,
+				input2);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+	public String ValidateFormatCharacter(String input) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkFormat_SpecialCharacterPasswordApp(input);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+	@Override
+	public String ValidateNull(boolean input, int TypeObject) {
+		return null;
+	}
+
+	public String ValidateNull(String input) {
+		return this.IVALIDATE.ValidateNull(input,
+				ValidateDefaut.TYPEOBJECT_PASSWORD);
+	}
+
+	public String ValidateNull(String input, int TypeObject) {
+		return this.IVALIDATE.ValidateNull(input, TypeObject);
+	}
+
+	public String ValidateSamePassword(String input, String input2) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkMatch_SamePassword(input, input2);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+}

@@ -1,0 +1,39 @@
+package com.vnpay.vntalk.util;
+
+import java.util.Vector;
+
+public class Validate_Location implements IValidate {
+
+	private final int EQUALLENGTH = 20;
+	private final IValidate IVALIDATE;
+	private final int MAXLENGTH = 40;
+	private final int MINLENGTH = 16;
+	private Validation mValidation;
+
+	public Validate_Location(IValidate validateDefaut) {
+		this.IVALIDATE = validateDefaut;
+		mValidation = new Validation("VN");
+	}
+
+	@Override
+	public String ValidateNull(boolean input, int TypeObject) {
+		return null;
+	}
+
+	public String ValidateNull(String input) {
+		return this.IVALIDATE.ValidateNull(input);
+	}
+
+	public String ValidateNull(String input, int TypeObject) {
+		return this.IVALIDATE.ValidateNull(input, TypeObject);
+	}
+
+	public String ValidateSameLocation(String input, String input1) {
+		Vector<Object> output = new Vector<Object>();
+		output = mValidation.checkSameLocation(input, input1);
+		if (!(Boolean) output.get(0))
+			return (String) output.get(1);
+		return null;
+	}
+
+}

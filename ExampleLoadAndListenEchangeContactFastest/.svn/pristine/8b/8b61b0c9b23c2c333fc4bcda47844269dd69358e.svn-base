@@ -1,0 +1,2159 @@
+package com.vnpay.vntalk.util;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.log4j.Logger;
+
+public class Validation {
+	private String mFormat_SpecialCharacterLoginID, FormatNumberPhone,
+			FormatPasswordApp, FormatPasswordAppLPB, FormatAmount,
+			FormatPasswordTransfer, mFormat_SpecialCharacterNumberPhone,
+			mFormat_SpecialCharacterAccount, mFormat_SpecialCharacterCard,
+			mFormat_SpecialCharacterVPBS,
+			mFormat_SpecialCharacterCustomerReceiverName,
+			mFormat_SpecialCharacterPasswordApp,
+			mFormat_SpecialCharacterCustomerCode,
+			mFormat_SpecialCharacterActiveCode,
+			mFormat_SpecialCharacterReActiveCode,
+			mFormat_SpaceCharacterActiveCode,
+			mFormat_SpaceCharacterReActiveCode, mFormat_SpecialCharacterInfo,
+			mFormat_SpecialCharacterFullName,
+			mFormat_SpecialCharacterPasswordTopup, mFormatOTP, mFormatOTP1,
+			mFormatAccept, mFormatAccept1, mFormatInfo1, mFormatNumberPhone,
+			mFormatNumberPhone1, mFormatAmount, mFormatAccountCredit,
+			mFormatAccount, mFormatAccountLBP, mFormatCard, mFormatVPBS,
+			mFormatActiveCode, mFormatReActiveCode, mFormatPasswordTopup,
+			mFormatGuest, mFormatGuest1, mFormatName;
+	private String mMatchActivation, mMatchPassword, MatchPasswordTopup,
+			mMatchPasswordTransfer, mMathIsLogin;
+	private String mNullLoginID, mNullPassword, mNullRePassword, mNullService,
+			mNullProvider, mNullOldPassword, mNullNewPassword,
+			mNullReNewPassword, mNullCard, mNullVPBS, mNullAccountReveiver,
+			mNullAccountSource, mNullSoso, mNullOTP, mNullAccept, mNullInfo,
+			mNullInfoCheck, mNullActiveCode, mNullReActiveCode, mNullBank,
+			mNullBranch, mNullProvice, mNullTerm, mNullPolicy,
+			mNullReasonTransfer, mNullCustomerReceiverName, mNullValueTopup,
+			mNullDateTime, mNullDateTimeDepart, mNullDateTimeReturn,
+			NullFullName, mNullAdult, mNullChild, mNullInfant, mNullOrigin,
+			mNullDestination, mNullName, mNullBirthday, mNullEmail, mNullPhone,
+			mNullPhoneAnother, mNullAddress, mNullTransferType, NullPassword,
+			NullRePassword, NullOldPasswordApplication,
+			NullNewPasswordApplication, NullReNewPasswordApplication,
+			NullPasswordTopup, NullOldPasswordTopup, NullNewPasswordTopup,
+			NullReNewPasswordTopup, NullOldPasswordTransfer,
+			NullNewPasswordTransfer, NullReNewPasswordTransfer, NullAccount,
+			NullAmount, NullNumberPhone, NullCustomerCode, NullBookingCode,
+			NullStudent;
+	private Vector<Object> mOutput;
+	private String mSameAccountTransfer, mSamePassword, mSameLocation,
+			SamePassword, SameAccountTransfer;
+	private String mUnicodePassword;
+	private String mWrongDateTime, mWrongDateTimeLocation,
+			mWrongDateTimeOrigin, mWrongDateTimeReturn, mWrongDateTimeLookup,
+			mWrongDateTimeLookup1, mWrongEmail;
+	private String mWrongPassword;
+
+	public Validation(String language) {
+		super();
+		mOutput = new Vector<Object>();
+
+		// -------------------------------Null----------------------------------//
+		mNullPassword = "Quý khách chưa nhập mật khẩu. Mời Quý khách nhập lại!";
+		mNullRePassword = "Quý khách chưa xác nhận mật khẩu. Mời Quý khách nhập lại!";
+		mNullOldPassword = "Quý khách chưa nhập mật khẩu cũ. Mời Quý khách nhập lại!";
+		mNullNewPassword = "Quý khách chưa nhập mật khẩu mới. Mời Quý khách nhập lại!";
+		mNullReNewPassword = "Quý khách chưa xác nhận mật khẩu mới. Mời Quý khách nhập lại!";
+
+		mNullLoginID = "Quý khách chưa nhập tên đăng nhập. Mời Quý khách nhập lại!";
+
+		mNullCard = "Quý khách chưa nhập số thẻ. Mời Quý khách nhập lại!";
+		mNullVPBS = "Quý khách chưa nhập mã VPBS. Mời Quý khách nhập lại!";
+		mNullAccountReveiver = "Quý khách chưa nhập tài khoản đích. Vui lòng nhập lại!";
+		mNullAccountSource = "Quý khách chưa nhập tài khoản nguồn. Mời Quý khách nhập lại!";
+
+		mNullTerm = "Quý khách chưa chọn kỳ hạn. Mời Quý khách nhập lại!";
+		mNullDateTime = "Quý khách chưa nhập dữ liệu thời gian. Mời Quý khách nhập lại!";
+		mNullDateTimeDepart = "Quý khách chưa nhập dữ liệu thời gian đi. Mời Quý khách nhập lại!";
+		mNullDateTimeReturn = "Quý khách chưa nhập dữ liệu thời gian đến. Mời Quý khách nhập lại!";
+		NullFullName = "Họ tên không được để trống. Mời Quý khách nhập lại";
+		mNullTransferType = "Quý khách chưa nhập loại tài khoản giao dịch. Mời Quý khách nhập lại!";
+
+		mNullSoso = "Quý khách chưa nhập số sổ tiết kiệm. Mời Quý khách nhập lại!";
+		mNullActiveCode = "Quý khách chưa nhập mã đăng ký. Mời Quý khách nhập lại!";
+		mNullReActiveCode = "Quý khách chưa nhập Xác thực mã kích hoạt. Mời Quý khách nhập lại!";
+		mNullOTP = "Quý khách chưa nhập OTP. Mời Quý khách nhập lại!";
+		mNullAccept = "Quý khách chưa nhập mã xác nhận. Mời Quý khách nhập lại!";
+		mNullInfo = "Quý khách chưa nhập thông tin. Mời Quý khách nhập lại!";
+		mNullInfoCheck = "Quý khách chưa chọn mã hóa đơn. Mời Quý khách nhập lại!";
+		mNullService = "Quý khách chưa chọn loại dịch vụ. Mời Quý khách nhập lại!";
+		mNullProvider = "Quý khách chưa chọn nhà cung cấp. Mời Quý khách nhập lại!";
+		mNullReasonTransfer = "Quý khách chưa nhập nội dung chuyển khoản. Mời Quý khách nhập lại!";
+		mNullBank = "Quý khách chưa chọn ngân hàng. Mời Quý khách nhập lại!";
+		mNullProvice = "Quý khách chưa chọn Tỉnh/Thành. Mời Quý khách nhập lại!";
+		mNullBranch = "Quý khách chưa chọn chi nhánh. Mời Quý khách nhập lại!";
+		mNullCustomerReceiverName = "Quý khách chưa nhập tên người nhận. Mời Quý khách nhập lại!";
+		mNullValueTopup = "Quý khách chưa nhập giá trị nạp. Mời Quý khách nhập lại!";
+		mNullOrigin = "Quý khách chưa nhập địa điểm khởi hành. Mời Quý khách nhập lại!";
+		mNullDestination = "Quý khách chưa nhập địa điểm đến. Mời Quý khách nhập lại!";
+		mNullAdult = "Quý khách chưa nhập số lượng người lớn. Mời Quý khách nhập lại!";
+		mNullChild = "Quý khách chưa nhập số lượng trẻ em. Mời Quý khách nhập lại!";
+		mNullInfant = "Quý khách chưa nhập số lượng em bé. Mời Quý khách nhập lại!";
+		mNullName = "Quý khách chưa nhập tên hành khách. Mời Quý khách nhập lại!";
+		mNullBirthday = "Quý khách chưa nhập ngày sinh của trẻ em/ em bé. Mời Quý khách nhập lại!";
+		mNullEmail = "Quý khách chưa nhập địa chỉ email. Mời Quý khách nhập lại!";
+		mNullPhone = "Quý khách chưa nhập số điện thoại. Mời Quý khách nhập lại!";
+		mNullPhoneAnother = "Quý khách chưa nhập số điện thoại khác. Mời Quý khách nhập lại!";
+		mNullAddress = "Quý khách chưa nhập địa chỉ. Mời Quý khách nhập lại!";
+		mNullPolicy = "Quý khách vui lòng chọn đọc và đồng ý với điều khoản quy định  của ngân hàng";
+
+		NullPassword = "Quý khách chưa nhập mật khẩu ứng dụng. Mời Quý khách nhập lại";
+		NullRePassword = "Quý khách chưa xác nhận mật khẩu ứng dụng. Mời Quý khách nhập lại";
+		NullOldPasswordApplication = "Quý khách chưa nhập mật khẩu ứng dụng cũ. Mời Quý khách nhập lại";
+		NullNewPasswordApplication = "Quý khách chưa nhập mật khẩu ứng dụng mới. Mời Quý khách nhập lại";
+		NullReNewPasswordApplication = "Quý khách chưa xác nhận mật khẩu ứng dụng mới. Mời Quý khách nhập lại";
+
+		NullPasswordTopup = "Quý khách chưa nhập mật khẩu Topup. Mời Quý khách nhập lại";
+		NullOldPasswordTopup = "Quý khách chưa nhập mật khẩu Topup cũ. Mời Quý khách nhập lại";
+		NullNewPasswordTopup = "Quý khách chưa nhập mật khẩu Topup mới. Mời Quý khách nhập lại";
+		NullReNewPasswordTopup = "Quý khách chưa xác nhận mật khẩu Topup mới. Mời Quý khách nhập lại";
+
+		NullOldPasswordTransfer = "Quý khách chưa nhập mật khẩu chuyển khoản cũ. Mời Quý khách nhập lại";
+		NullNewPasswordTransfer = "Quý khách chưa nhập mật khẩu chuyển khoản. Mời Quý khách nhập lại";
+		NullReNewPasswordTransfer = "Quý khách chưa xác nhận mật khẩu chuyển khoản. Mời Quý khách nhập lại";
+
+		NullAccount = "Quý khách chưa nhập đầy đủ thông tin. Mời Quý khách nhập lại";
+		NullAmount = "Quý khách chưa nhập số tiền giao dịch. Mời Quý khách nhập lại";
+		NullNumberPhone = "Quý khách chưa nhập số điện thoại. Mời Quý khách nhập lại";
+		NullCustomerCode = "Quý khách chưa nhập mã khách hàng. Mời Quý khách nhập lại";
+		NullBookingCode = "Mã đặt chỗ không được để trống. Mời Quý khách nhập lại";
+		NullStudent = "Mã sinh viên không được để trống. Mời Quý khách nhập lại";
+
+		// -------------------------------Match----------------------------------//
+
+		mMatchPassword = "Xác nhận mật khẩu ứng dụng không đúng do mật khẩu và xác nhận mật khẩu phải trùng nhau. Mời Quý khách nhập lại";
+		mMatchPasswordTransfer = "Xác nhận mật khẩu chuyển khoản không đúng do mật khẩu và xác nhận mật khẩu phải trùng nhau. Mời Quý khách nhập lại";
+		mMatchActivation = "Xác nhận mã kích hoạt không đúng do mã kích hoạt và xác nhận mã kích hoạt phải trùng nhau. Mời Quý khách nhập lại";
+		mMathIsLogin = "Quý khách chưa đăng nhập ứng dụng. Đăng nhập để sử dụng dịch vụ.";
+
+		// -------------------------------Format----------------------------------//
+
+		mFormat_SpecialCharacterLoginID = "Tên đăng nhập không chứa các ký tự đặc biệt. Mời Quý khách nhập lại!";
+		mFormatNumberPhone = "Độ dài số điện thoại quy định là từ 10-13 ký tự. Mời Quý khách nhập lại!";
+		mFormatNumberPhone1 = "Số điện thoại không đúng định dạng. Mời Quý khách nhập lại!";
+		mFormat_SpecialCharacterNumberPhone = "Số điện thoại không chứa ký tự đặc biêt. Mời Quý khách nhập lại!";
+
+		mFormatPasswordTopup = "Mật khẩu topup phải lớn hơn 6 ký tự. Mời Quý khách nhập lại!";
+		mFormatAccountCredit = "Tài khoản tín dụng phải lớn hơn 16 ký tự. Mời Quý khách nhập lại!";
+		mFormat_SpecialCharacterPasswordTopup = "Mật khẩu không chứa ký tự đặc biệt. Mời Quý khách nhập lại!";
+		mFormat_SpecialCharacterPasswordApp = "Mật khẩu không chứa ký tự đặc biệt. Mời Quý khách nhập lại!";
+
+		mFormatAccount = "Tài khoản phải đủ 20 ký tự theo quy định. Mời Quý khách nhập lại!";
+		mFormatAccountLBP = "Thông tin tài khoản nhận phải có độ dài từ 5-30 ký tự, vui lòng kiểm tra lại";
+		mFormatCard = "Số thẻ phải đủ 20 ký tự theo quy định. Mời Quý khách nhập lại!";
+		mFormatVPBS = "Mã VPBS phải đủ 20 ký tự theo quy định. Mời Quý khách nhập lại!";
+		mFormat_SpecialCharacterAccount = "Tài khoản không chứa các ký tự đặc biệt. Mời Quý khách nhập lại!";
+		mFormat_SpecialCharacterCard = "Số thẻ không chứa các ký tự đặc biệt. Mời Quý khách nhập lại!";
+		mFormat_SpecialCharacterVPBS = "Mã VPBS không chứa các ký tự đặc biệt. Mời Quý khách nhập lại!";
+
+		mFormatOTP1 = "OTP không chứa ký tự khoảng trắng. Mời Quý khách nhập lại!";
+		mFormatOTP = "OTP phải đủ 6 ký tự. Mời Quý khách nhập lại!";
+		mFormatAccept = "Mã xác nhận phải đủ 6 ký tự. Mời Quý khách nhập lại!";
+		mFormatAccept1 = "Mã xác nhận không chứa ký tự khoảng trắng. Mời Quý khách nhập lại!";
+
+		mFormatAmount = "Số tiền chuyển khoản tối đa/1 lần là 2.000.000 VND";
+		mFormatActiveCode = "Mã đăng ký không đủ 6 ký tự. Mời Quý khách nhập lại!";
+		mFormatReActiveCode = "Mã xác thực không đủ 6 ký tự. Mời Quý khách nhập lại!";
+		mFormat_SpecialCharacterActiveCode = "Mã kích hoạt không chứa các ký tự đặc biệt. Mời Quý khách nhập lại!";
+		mFormat_SpaceCharacterActiveCode = "Mã kích hoạt không chứa các ký tự khoảng trắng. Mời Quý khách nhập lại!";
+		mFormat_SpecialCharacterReActiveCode = "Mã xác thực không chứa các ký tự đặc biệt. Mời Quý khách nhập lại!";
+		mFormat_SpaceCharacterReActiveCode = "Mã xác thực không chứa các ký tự khoảng trắng. Mời Quý khách nhập lại!";
+		mFormat_SpecialCharacterCustomerCode = "Mã khách hàng không chứa các ký tự đặc biệt. Mời Quý khách nhập lại!";
+
+		mFormat_SpecialCharacterInfo = "Dữ liệu khách hàng không chứa các ký tự đặc biệt. Mời Quý khách nhập lại!";
+		mFormatInfo1 = "Dữ liệu khách hàng không chứa ký tự khoảng trắng. Mời Quý khách nhập lại";
+		FormatNumberPhone = "Số điện thoại không đúng định dang. Mời Quý khách nhập lại";
+		FormatPasswordApp = "Mật khẩu là một chuỗi từ 6-20 ký tự.";
+		FormatPasswordAppLPB = "Mật khẩu phải là một chuỗi từ 6-20 ký tự và chứa ít nhất 1 ký tự số và 1 ký tự chữ.";
+		FormatPasswordTransfer = "Mật khẩu chuyển khoản phải là 8 ký tự. Mời Quý khách nhập lại";
+		FormatAmount = "Số tiền không đúng định dạng. Mời Quý khách nhập lại!";
+
+		mFormat_SpecialCharacterFullName = "Tên khách hàng không chứa các ký tự đặc biệt. Mời Quý khách nhập lại!";
+		mFormat_SpecialCharacterCustomerReceiverName = "Tên người nhận không chứa các ký tự đặc biệt. Mời Quý khách nhập lại!";
+		mFormatGuest = "Số lượng Em bé/ trẻ em trong mỗi chuyến bay ít hơn hoặc bằng số lượng người lớn bay. Quý khách vui lòng chọn lại. ";
+		mFormatGuest1 = "Số lượng người lớn và trẻ em tối đa được cho phép trong một lần đặt vé là 9 người. Quý khách vui lòng chọn lại. ";
+		mFormatName = "Thông tin sai định dạng. Mời Quý khách nhập lại!";
+
+		mWrongPassword = "Sai mật khẩu. Mời Quý khách nhập lại!";
+		mWrongDateTime = "Dữ liệu thời gian không đúng. Mời Quý khách nhập lại!";
+		mWrongDateTimeLocation = "Ngày khởi hành phải trước ngày về. Mời Quý khách nhập lại!";
+		mWrongDateTimeOrigin = "Ngày đi không hợp lệ. Ngày đi phải lớn hơn hoặc bằng ngày hiện tại. Mời Quý khách nhập lại!";
+		mWrongDateTimeReturn = "Ngày về không hợp lệ. Ngày về phải lớn hơn hoặc bằng ngày hiện tại. Mời Quý khách nhập lại!";
+		mWrongDateTimeLookup = "Dữ liệu Ngày không hợp lệ. Dữ liệu ngày phải nhỏ hơn hoặc bằng ngày hiện tại. Mời Quý khách nhập lại!";
+		mWrongDateTimeLookup1 = "Khoảng thời gian tra cứu tối đa là 30 ngày. Quý khách vui lòng chọn lại.";
+		mWrongEmail = "Địa chỉ thư điện tử sai. Mời Quý khách nhập lại!";
+		mUnicodePassword = "Mật khẩu không chứa ký tự tiếng việt";
+		mSameAccountTransfer = "Tài khoản chuyển tiền và tài khoản thụ hưởng không được trùng nhau. Quý khách vui lòng kiểm tra lại.";
+		mSamePassword = "Mật khẩu cũ và mật khẩu mới không được trùng nhau. Quý khách vui lòng kiểm tra lại.";
+		mSameLocation = "Địa điểm khởi hành và địa điểm đến không được trùng nhau. Quý khách vui lòng kiểm tra lại.";
+
+		MatchPasswordTopup = "Xác nhận mật khẩu Topup không đúng. Mời Quý khách nhập lại";
+
+		SamePassword = "Mật khẩu giống mật khẩu cũ. Mời Quý khách nhập lại";
+		SameAccountTransfer = "Tài khoản nguồn và tài khoản đích giống nhau. Mời nhập lại";
+
+	}
+
+	public Vector<Object> checkFormat_Accept(String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckSpaceCharacter(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormatAccept1);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_Accept(String input, int MinLength,
+			int Maxlength, int EqualLength) {
+		if (Maxlength == 0 && MinLength == 0) {
+			mOutput.removeAllElements();
+			if (input.length() != EqualLength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatAccept);
+			} else {
+				mOutput.addElement(true);
+			}
+		} else {
+			mOutput.removeAllElements();
+			if (input.length() < MinLength || input.length() > Maxlength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatAccept);
+			} else {
+				mOutput.addElement(true);
+			}
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_AccountLPB(String input, int MinLength,
+			int Maxlength, int EqualLength) {
+		if (Maxlength == 0 && MinLength == 0) {
+			mOutput.removeAllElements();
+			if (input.length() != EqualLength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatAccountLBP);
+			} else {
+				mOutput.addElement(true);
+			}
+		} else {
+			mOutput.removeAllElements();
+			if (input.length() < MinLength || input.length() > Maxlength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatAccountLBP);
+			} else {
+				mOutput.addElement(true);
+			}
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_Account(String input, int MinLength,
+			int Maxlength, int EqualLength) {
+		if (Maxlength == 0 && MinLength == 0) {
+			mOutput.removeAllElements();
+			if (input.length() != EqualLength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatAccount);
+			} else {
+				mOutput.addElement(true);
+			}
+		} else {
+			mOutput.removeAllElements();
+			if (input.length() < MinLength || input.length() > Maxlength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatAccount);
+			} else {
+				mOutput.addElement(true);
+			}
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_AccountCredit(String input,
+			int MinLength, int Maxlength, int EqualLength) {
+		if (Maxlength == 0 && MinLength == 0) {
+			mOutput.removeAllElements();
+			if (input.length() != EqualLength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatAccountCredit);
+			} else {
+				mOutput.addElement(true);
+			}
+		} else {
+			mOutput.removeAllElements();
+			if (input.length() < MinLength || input.length() > Maxlength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatAccountCredit);
+			} else {
+				mOutput.addElement(true);
+			}
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_ActiveCode(String input, int MinLength,
+			int Maxlength, int EqualLength) {
+		if (Maxlength == 0 && MinLength == 0) {
+			mOutput.removeAllElements();
+			if (input.length() != EqualLength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatActiveCode);
+			} else {
+				mOutput.addElement(true);
+			}
+		} else {
+			mOutput.removeAllElements();
+			if (input.length() < MinLength || input.length() > Maxlength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatActiveCode);
+			} else {
+				mOutput.addElement(true);
+			}
+		}
+
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_Amount(String input) {
+		mOutput.removeAllElements();
+		if (input.startsWith("0")) {
+			mOutput.addElement(false);
+			mOutput.addElement(FormatAmount);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_Card(String input, int MinLength,
+			int Maxlength, int EqualLength) {
+		if (Maxlength == 0 && MinLength == 0) {
+			mOutput.removeAllElements();
+			if (input.length() != EqualLength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatCard);
+			} else {
+				mOutput.addElement(true);
+			}
+		} else {
+			mOutput.removeAllElements();
+			if (input.length() < MinLength || input.length() > Maxlength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatCard);
+			} else {
+				mOutput.addElement(true);
+			}
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_Guest(String input, String input1,
+			String input2) {
+		mOutput.removeAllElements();
+		if (Utils_String.isNullOrEmpty(input2)
+				&& Utils_String.isNullOrEmpty(input1)) {
+			mOutput.addElement(true);
+		} else if (Utils_String.isNullOrEmpty(input1)) {
+			if (Integer.valueOf(input) < Integer.valueOf(input2)) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatGuest);
+			}
+		} else if (Utils_String.isNullOrEmpty(input2)) {
+			if (Integer.valueOf(input) < Integer.valueOf(input1)) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatGuest);
+			}
+		} else if (Integer.valueOf(input) < Integer.valueOf(input1)
+				|| Integer.valueOf(input) < Integer.valueOf(input2)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormatGuest);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_Guest1(String input, String input1,
+			String input2) {
+		mOutput.removeAllElements();
+		int i = 0;
+		try {
+			i = Integer.valueOf(input);
+		} catch (Exception e) {
+		}
+
+		try {
+			i += Integer.valueOf(input1);
+		} catch (Exception e) {
+		}
+
+		try {
+			i += Integer.valueOf(input2);
+		} catch (Exception e) {
+		}
+
+		if (i <= 9)
+			mOutput.addElement(true);
+		else {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormatGuest1);
+		}
+
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_Info1(String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckSpaceCharacter(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormatInfo1);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_Info2(String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckSpecialCharacter(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormatInfo1);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_Name(String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckFullName(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormatName);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_Name1(String input) {
+		mOutput.removeAllElements();
+		if (!Utils_String.CheckSpaceCharacter(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormatName);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_OTP(String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckSpaceCharacter(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormatOTP1);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_OTP(String input, int MinLength,
+			int Maxlength, int EqualLength) {
+		if (Maxlength == 0 && MinLength == 0) {
+			mOutput.removeAllElements();
+			if (input.length() != EqualLength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatOTP);
+			} else {
+				mOutput.addElement(true);
+			}
+		} else {
+			mOutput.removeAllElements();
+			if (input.length() < MinLength || input.length() > Maxlength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatOTP);
+			} else {
+				mOutput.addElement(true);
+			}
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_PasswordApp(String input) {
+		mOutput.removeAllElements();
+		if (input.length() < 6) {
+			mOutput.addElement(false);
+			mOutput.addElement(FormatPasswordApp);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_PasswordAppLBP2(String input) {
+		mOutput.removeAllElements();
+		if (UtilsMe.checkPasswordLBP(input) == -1
+				|| UtilsMe.checkPasswordLBP(input) == -6
+				|| UtilsMe.checkPasswordLBP(input) == -20) {
+			mOutput.addElement(false);
+			mOutput.addElement(FormatPasswordAppLPB);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_PasswordApp2(String input) {
+		mOutput.removeAllElements();
+		if (UtilsMe.checkPassword(input) == -1) {
+			mOutput.addElement(false);
+			mOutput.addElement(FormatPasswordApp);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_PasswordTopup(String input,
+			int MinLength, int Maxlength, int EqualLength) {
+		if (Maxlength == 0 && MinLength == 0) {
+			mOutput.removeAllElements();
+			if (input.length() != EqualLength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatPasswordTopup);
+			} else {
+				mOutput.addElement(true);
+			}
+		} else {
+			mOutput.removeAllElements();
+			if (input.length() < MinLength || input.length() > Maxlength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatPasswordTopup);
+			} else {
+				mOutput.addElement(true);
+			}
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_PasswordTransfer(String input) {
+		mOutput.removeAllElements();
+		if (input.length() != 8) {
+			mOutput.addElement(false);
+			mOutput.addElement(FormatPasswordTransfer);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	// --------------------------------Format----------------------------///
+	public Vector<Object> checkFormat_PhoneNumber(String input) {
+		mOutput.removeAllElements();
+		if (input.length() < 10 || input.length() > 11) {
+			mOutput.addElement(false);
+			mOutput.addElement(FormatNumberPhone);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_PhoneNumber(String input, int MinLength,
+			int Maxlength, int EqualLength) {
+		if (Maxlength == 0 && MinLength == 0) {
+			mOutput.removeAllElements();
+			if (input.length() != EqualLength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatNumberPhone);
+			} else {
+				mOutput.addElement(true);
+			}
+		} else {
+			mOutput.removeAllElements();
+			if (input.length() < MinLength || input.length() > Maxlength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatNumberPhone);
+			} else {
+				mOutput.addElement(true);
+			}
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_PhoneNumber1(Logger logger, String input) {
+		mOutput.removeAllElements();
+		String temp = UtilsMe.checkPhone(logger, input);
+		if (temp.length() == 0) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormatNumberPhone1);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_ReActiveCode(String input, int MinLength,
+			int Maxlength, int EqualLength) {
+		if (Maxlength == 0 && MinLength == 0) {
+			mOutput.removeAllElements();
+			if (input.length() != EqualLength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatReActiveCode);
+			} else {
+				mOutput.addElement(true);
+			}
+		} else {
+			mOutput.removeAllElements();
+			if (input.length() < MinLength || input.length() > Maxlength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatReActiveCode);
+			} else {
+				mOutput.addElement(true);
+			}
+		}
+
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_SpecialCharacter_ActiveCode(String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckSpecialCharacter(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormat_SpecialCharacterActiveCode);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_SpecialCharacter_LoginID(String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckSpecialCharacter(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormat_SpecialCharacterLoginID);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_SpecialCharacter_ReActiveCode(String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckSpecialCharacter(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormat_SpecialCharacterReActiveCode);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_SpecialCharacterAccount(String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckUniCode(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormat_SpecialCharacterAccount);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_SpecialCharacterCard(String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckUniCode(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormat_SpecialCharacterCard);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_SpecialCharacterCustomerCode(String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckUniCode(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormat_SpecialCharacterCustomerCode);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_SpecialCharacterCustomerReceiverName(
+			String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckFullName(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormat_SpecialCharacterCustomerReceiverName);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_SpecialCharacterFullName(String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckFullName(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormat_SpecialCharacterFullName);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_SpecialCharacterInfo(String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckSpecialCharacter(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormat_SpecialCharacterInfo);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_SpecialCharacterPasswordApp(String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckUniCode(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormat_SpecialCharacterPasswordApp);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_SpecialCharacterPasswordTopup(String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckUniCode(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormat_SpecialCharacterPasswordTopup);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_SpecialCharacterPhoneNumber(String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckUniCode(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormat_SpecialCharacterNumberPhone);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_SpecialCharacterVPBS(String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckUniCode(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormat_SpecialCharacterVPBS);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_VPBS(String input, int MinLength,
+			int Maxlength, int EqualLength) {
+		if (Maxlength == 0 && MinLength == 0) {
+			mOutput.removeAllElements();
+			if (input.length() != EqualLength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatVPBS);
+			} else {
+				mOutput.addElement(true);
+			}
+		} else {
+			mOutput.removeAllElements();
+			if (input.length() < MinLength || input.length() > Maxlength) {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatVPBS);
+			} else {
+				mOutput.addElement(true);
+			}
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_WhiteSpaceCharacter_ActiveCode(
+			String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckSpaceCharacter(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormat_SpaceCharacterActiveCode);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat_WhiteSpaceCharacter_ReActiveCode(
+			String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckSpaceCharacter(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mFormat_SpaceCharacterReActiveCode);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkFormat1_Amount(String input) {
+		mOutput.removeAllElements();
+		if (input.trim().length() <= 7) {
+			if (Long.parseLong(input.trim()) <= 2000000) {
+				mOutput.addElement(true);
+			} else {
+				mOutput.addElement(false);
+				mOutput.addElement(mFormatAmount);
+			}
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkisLogin(String input, String input2) {
+		mOutput.removeAllElements();
+		if (!input.trim().equals(input2.trim())) {
+			mOutput.addElement(false);
+			mOutput.addElement(mMathIsLogin);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkMatch_Activation(String input, String input2) {
+		mOutput.removeAllElements();
+		if (!input.trim().equals(input2.trim())) {
+			mOutput.addElement(false);
+			mOutput.addElement(mMatchActivation);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkMatch_ConfrimPasswordApplication(String input,
+			String input2) {
+		mOutput.removeAllElements();
+		if (!input.equals(input2)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mMatchPassword);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkMatch_PasswordTopup(String input, String input2) {
+		mOutput.removeAllElements();
+		if (!input.equals(input2)) {
+			mOutput.addElement(false);
+			mOutput.addElement(MatchPasswordTopup);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkMatch_PasswordTransfer(String input,
+			String input2) {
+		mOutput.removeAllElements();
+		if (!input.trim().equals(input2.trim())) {
+			mOutput.addElement(false);
+			mOutput.addElement(mMatchPasswordTransfer);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkMatch_SameAccountTransfer(String input,
+			String input2) {
+		mOutput.removeAllElements();
+		if (input.equals(input2)) {
+			mOutput.addElement(false);
+			mOutput.addElement(SameAccountTransfer);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkMatch_SamePassword(String input, String input2) {
+		mOutput.removeAllElements();
+		if (input.equals(input2)) {
+			mOutput.addElement(false);
+			mOutput.addElement(SamePassword);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Accept(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullAccept);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullAccept);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Account(String input) {
+		mOutput.removeAllElements();
+		if (input.trim().equals("")) {
+			mOutput.addElement(false);
+			mOutput.addElement(NullAccount);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_AccountReceiver(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullAccountReveiver);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullAccountReveiver);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_AccountSource(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullAccountSource);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullAccountSource);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Provider(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullProvider);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullProvider);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_ActiveCode(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullActiveCode);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullActiveCode);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Adult(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullAdult);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullAdult);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Amount(String input) {
+		mOutput.removeAllElements();
+		if (input.trim().equals("")) {
+			mOutput.addElement(false);
+			mOutput.addElement(NullAmount);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_BankName(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullBank);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullBank);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Service(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullService);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullService);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Birthday(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullBirthday);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullBirthday);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_BookingCode(String input) {
+		mOutput.removeAllElements();
+		if (input.trim().equals("")) {
+			mOutput.addElement(false);
+			mOutput.addElement(NullBookingCode);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Branch(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullBranch);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullBranch);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Card(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullCard);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullCard);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Check(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullInfoCheck);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullInfoCheck);
+		}
+		return mOutput;
+	}
+
+	// --------------------------------Match----------------------------///
+
+	public Vector<Object> checkNull_Child(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullChild);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullChild);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_ConfrimPasswordApplication(String input) {
+		mOutput.removeAllElements();
+		if (input.trim().equals("")) {
+			mOutput.addElement(false);
+			mOutput.addElement(NullRePassword);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_CustomerCode(String input) {
+		mOutput.removeAllElements();
+		if (input.trim().equals("")) {
+			mOutput.addElement(false);
+			mOutput.addElement(NullCustomerCode);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_CustomerReceiverName(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullCustomerReceiverName);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullCustomerReceiverName);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_DateTime(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullDateTime);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullDateTime);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_DateTimeDepart(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullDateTimeDepart);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullDateTimeDepart);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_DateTimeReturn(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullDateTimeReturn);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullDateTimeReturn);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Destination(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullDestination);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullDestination);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Email(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullEmail);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullEmail);
+		}
+		return mOutput;
+	}
+
+	// --------------------------------Null----------------------------///
+	public Vector<Object> checkNull_FullName(String input) {
+		mOutput.removeAllElements();
+		if (input.trim().equals("")) {
+			mOutput.addElement(false);
+			mOutput.addElement(NullFullName);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Infant(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullInfant);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullInfant);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Info(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullInfo);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullInfo);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_LoginID(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullLoginID);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullLoginID);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Name(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullName);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullName);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_NewPassword(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullNewPassword);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullNewPassword);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_NewPasswordApplication(String input) {
+		mOutput.removeAllElements();
+		if (input.trim().equals("")) {
+			mOutput.addElement(false);
+			mOutput.addElement(NullNewPasswordApplication);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_NewPasswordTopup(String input) {
+		mOutput.removeAllElements();
+		if (input.equals("")) {
+			mOutput.addElement(false);
+			mOutput.addElement(NullNewPasswordTopup);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_NewPasswordTransfer(String input) {
+		mOutput.removeAllElements();
+		if (input.equals("")) {
+			mOutput.addElement(false);
+			mOutput.addElement(NullNewPasswordTransfer);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_OldPassword(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullOldPassword);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullOldPassword);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_OldPasswordApplication(String input) {
+		mOutput.removeAllElements();
+		if (input.equals("")) {
+			mOutput.addElement(false);
+			mOutput.addElement(NullOldPasswordApplication);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_OldPasswordTopup(String input) {
+		mOutput.removeAllElements();
+		if (input.equals("")) {
+			mOutput.addElement(false);
+			mOutput.addElement(NullOldPasswordTopup);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_OldPasswordTransfer(String input) {
+		mOutput.removeAllElements();
+		if (input.equals("")) {
+			mOutput.addElement(false);
+			mOutput.addElement(NullOldPasswordTransfer);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Origin(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullOrigin);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullOrigin);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_OTP(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullOTP);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullOTP);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Password(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullPassword);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullPassword);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_PasswordApplication(String input) {
+		mOutput.removeAllElements();
+		if (input.trim().equals("")) {
+			mOutput.addElement(false);
+			mOutput.addElement(NullPassword);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_PasswordTopup(String input) {
+		mOutput.removeAllElements();
+		if (input.trim().equals("")) {
+			mOutput.addElement(false);
+			mOutput.addElement(NullPasswordTopup);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Phone(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullPhone);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullPhone);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_PhoneAnother(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullPhoneAnother);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullPhoneAnother);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Address(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullAddress);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullAddress);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_PhoneNumber(String input) {
+		mOutput.removeAllElements();
+		if (input.trim().equals("")) {
+			mOutput.addElement(false);
+			mOutput.addElement(NullNumberPhone);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Policy(boolean input) {
+		mOutput.removeAllElements();
+		try {
+			if (!input) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullPolicy);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullPolicy);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Province(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullProvice);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullProvice);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_ReActiveCode(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullReActiveCode);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullReActiveCode);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_ReasonTransfer(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullReasonTransfer);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullReasonTransfer);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_ReNewPassword(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullReNewPassword);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullReNewPassword);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_ReNewPasswordApplication(String input) {
+		mOutput.removeAllElements();
+		if (input.trim().equals("")) {
+			mOutput.addElement(false);
+			mOutput.addElement(NullReNewPasswordApplication);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_ReNewPasswordTopup(String input) {
+		mOutput.removeAllElements();
+		if (input.equals("")) {
+			mOutput.addElement(false);
+			mOutput.addElement(NullReNewPasswordTopup);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_ReNewPasswordTransfer(String input) {
+		mOutput.removeAllElements();
+		if (input.equals("")) {
+			mOutput.addElement(false);
+			mOutput.addElement(NullReNewPasswordTransfer);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_RePassword(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullRePassword);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullRePassword);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Soso(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullSoso);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullSoso);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Student(String input) {
+		mOutput.removeAllElements();
+		if (input.trim().equals("")) {
+			mOutput.addElement(false);
+			mOutput.addElement(NullStudent);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_Term(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullTerm);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullTerm);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_TransferTyper(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullTransferType);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullTransferType);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_ValueTopup(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullValueTopup);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullValueTopup);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkNull_VPBSCode(String input) {
+		mOutput.removeAllElements();
+		try {
+			if (input.trim().equals("")) {
+				mOutput.addElement(false);
+				mOutput.addElement(mNullVPBS);
+			} else {
+				mOutput.addElement(true);
+			}
+		} catch (Exception e) {
+			mOutput.addElement(false);
+			mOutput.addElement(mNullVPBS);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkSameAccountTransfer(String input, String input2) {
+		mOutput.removeAllElements();
+		if (input.trim().equals(input2.trim())) {
+			mOutput.addElement(false);
+			mOutput.addElement(mSameAccountTransfer);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkSameLocation(String input, String input2) {
+		mOutput.removeAllElements();
+		if (input.trim().equals(input2.trim())) {
+			mOutput.addElement(false);
+			mOutput.addElement(mSameLocation);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkSamePassword(String input, String input2) {
+		mOutput.removeAllElements();
+		if (input.trim().equals(input2.trim())) {
+			mOutput.addElement(false);
+			mOutput.addElement(mSamePassword);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkUnicodePassword(String input) {
+		mOutput.removeAllElements();
+		if (Utils_String.CheckUniCode(input)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mUnicodePassword);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkWrong_Datetime(int Day1, int Month1, int Year1,
+			int Day2, int Month2, int Year2) {
+		mOutput.removeAllElements();
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd",
+					Locale.getDefault());
+			Date date1 = sdf.parse(Year1 + "-" + Month1 + "-" + Day1);
+			Date date2 = sdf.parse(Year2 + "-" + Month2 + "-" + Day2);
+
+			Calendar cal1 = Calendar.getInstance();
+			Calendar cal2 = Calendar.getInstance();
+			cal2.setTime(date2);
+			cal2.set(Calendar.HOUR_OF_DAY, 0);
+			cal2.set(Calendar.MINUTE, 0);
+			cal2.set(Calendar.SECOND, 0);
+			cal2.set(Calendar.MILLISECOND, 0);
+			cal2.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+			cal1.setTime(date1);
+			cal1.set(Calendar.HOUR_OF_DAY, 0);
+			cal1.set(Calendar.MINUTE, 0);
+			cal1.set(Calendar.SECOND, 0);
+			cal1.set(Calendar.MILLISECOND, 0);
+			cal1.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+			if (cal2.before(cal1)) {
+				mOutput.addElement(false);
+				mOutput.addElement(mWrongDateTime);
+			} else
+				mOutput.addElement(true);
+
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkWrong_DatetimeLocation(int Day1, int Month1,
+			int Year1, int Hour1, int Minuter1, int Day2, int Month2,
+			int Year2, int Hour2, int Minuter2) {
+		mOutput.removeAllElements();
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm",
+					Locale.getDefault());
+			Date date1 = sdf.parse(Year1 + "-" + Month1 + "-" + Day1 + " "
+					+ Hour1 + ":" + Minuter1);
+			Date date2 = sdf.parse(Year2 + "-" + Month2 + "-" + Day2 + " "
+					+ Hour2 + ":" + Minuter2);
+
+			Calendar cal1 = Calendar.getInstance();
+			Calendar cal2 = Calendar.getInstance();
+			cal2.setTime(date2);
+			cal2.set(Calendar.HOUR_OF_DAY, 0);
+			cal2.set(Calendar.MINUTE, 0);
+			cal2.set(Calendar.SECOND, 0);
+			cal2.set(Calendar.MILLISECOND, 0);
+			cal2.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+			cal1.setTime(date1);
+			cal1.set(Calendar.HOUR_OF_DAY, 0);
+			cal1.set(Calendar.MINUTE, 0);
+			cal1.set(Calendar.SECOND, 0);
+			cal1.set(Calendar.MILLISECOND, 0);
+			cal1.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+			if (cal2.before(cal1)) {
+				mOutput.addElement(false);
+				mOutput.addElement(mWrongDateTimeLocation);
+			} else
+				mOutput.addElement(true);
+
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkWrong_DatetimeLookUp(int day, int month, int year) {
+		mOutput.removeAllElements();
+		Calendar cal1 = Calendar.getInstance();
+		cal1.set(Calendar.YEAR, year);
+		cal1.set(Calendar.MONTH, month);
+		cal1.set(Calendar.DAY_OF_MONTH, day);
+		cal1.set(Calendar.HOUR_OF_DAY, 0);
+		cal1.set(Calendar.MINUTE, 0);
+		cal1.set(Calendar.SECOND, 0);
+		cal1.set(Calendar.MILLISECOND, 0);
+		cal1.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+		Calendar cal2 = Calendar.getInstance();
+		cal2.set(Calendar.HOUR_OF_DAY, 0);
+		cal2.set(Calendar.MINUTE, 0);
+		cal2.set(Calendar.SECOND, 0);
+		cal2.set(Calendar.MILLISECOND, 0);
+		cal2.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+		if (cal2.before(cal1)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mWrongDateTimeLookup);
+		} else
+			mOutput.addElement(true);
+		return mOutput;
+	}
+
+	public Vector<Object> checkWrong_DatetimeLookUp2(int Day1, int Month1,
+			int Year1, int Day2, int Month2, int Year2) {
+		mOutput.removeAllElements();
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd",
+					Locale.getDefault());
+			Date date1 = sdf.parse(Year1 + "-" + Month1 + "-" + Day1);
+			Date date2 = sdf.parse(Year2 + "-" + Month2 + "-" + Day2);
+
+			Calendar cal1 = Calendar.getInstance();
+			Calendar cal2 = Calendar.getInstance();
+			cal2.setTime(date2);
+			cal2.set(Calendar.HOUR_OF_DAY, 0);
+			cal2.set(Calendar.MINUTE, 0);
+			cal2.set(Calendar.SECOND, 0);
+			cal2.set(Calendar.MILLISECOND, 0);
+			cal2.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+			cal1.setTime(date1);
+			cal1.add(Calendar.MONTH, 1);
+			cal1.set(Calendar.HOUR_OF_DAY, 0);
+			cal1.set(Calendar.MINUTE, 0);
+			cal1.set(Calendar.SECOND, 0);
+			cal1.set(Calendar.MILLISECOND, 0);
+			cal1.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+			if (cal1.after(cal2) || cal1.equals(cal2)) {
+				mOutput.addElement(true);
+			} else {
+				mOutput.addElement(false);
+				mOutput.addElement(mWrongDateTimeLookup1);
+			}
+
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return mOutput;
+	}
+
+	// -------------------Validate Authentication----------------------//
+
+	public Vector<Object> checkWrong_DatetimeOrigin(int day, int month, int year) {
+		mOutput.removeAllElements();
+		Calendar cal1 = Calendar.getInstance();
+		cal1.set(Calendar.YEAR, year);
+		cal1.set(Calendar.MONTH, month);
+		cal1.set(Calendar.DAY_OF_MONTH, day);
+		cal1.set(Calendar.HOUR_OF_DAY, 0);
+		cal1.set(Calendar.MINUTE, 0);
+		cal1.set(Calendar.SECOND, 0);
+		cal1.set(Calendar.MILLISECOND, 0);
+		cal1.setTimeZone(TimeZone.getTimeZone("UTC"));
+		// cal1.add(Calendar.DATE, 1);
+
+		Calendar cal2 = Calendar.getInstance();
+		cal2.set(Calendar.HOUR_OF_DAY, 0);
+		cal2.set(Calendar.MINUTE, 0);
+		cal2.set(Calendar.SECOND, 0);
+		cal2.set(Calendar.MILLISECOND, 0);
+		cal2.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+		if (cal1.before(cal2)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mWrongDateTimeOrigin);
+		} else
+			mOutput.addElement(true);
+		return mOutput;
+	}
+
+	public Vector<Object> checkWrong_YearMin(int yearmax, int yearmin, int year) {
+		mOutput.removeAllElements();
+		Calendar calmin = Calendar.getInstance();
+		calmin.add(Calendar.YEAR, -yearmin);
+		calmin.set(Calendar.MONTH, 0);
+		calmin.set(Calendar.DAY_OF_MONTH, 0);
+		calmin.set(Calendar.HOUR_OF_DAY, 0);
+		calmin.set(Calendar.MINUTE, 0);
+		calmin.set(Calendar.SECOND, 0);
+		calmin.set(Calendar.MILLISECOND, 0);
+		calmin.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+		Calendar calmax = Calendar.getInstance();
+		if (yearmax != 0) {
+			calmax.add(Calendar.YEAR, -yearmax);
+			calmax.set(Calendar.MONTH, 0);
+			calmax.set(Calendar.DAY_OF_MONTH, 0);
+			calmax.set(Calendar.HOUR_OF_DAY, 0);
+			calmax.set(Calendar.MINUTE, 0);
+			calmax.set(Calendar.SECOND, 0);
+			calmax.set(Calendar.MILLISECOND, 0);
+			calmax.setTimeZone(TimeZone.getTimeZone("UTC"));
+		}
+
+		Calendar cal2 = Calendar.getInstance();
+		cal2.set(Calendar.YEAR, year);
+		cal2.set(Calendar.MONTH, 0);
+		cal2.set(Calendar.DAY_OF_MONTH, 0);
+		cal2.set(Calendar.HOUR_OF_DAY, 0);
+		cal2.set(Calendar.MINUTE, 0);
+		cal2.set(Calendar.SECOND, 0);
+		cal2.set(Calendar.MILLISECOND, 0);
+		cal2.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+		if (yearmax == 0) {
+			if (cal2.before(calmin)) {
+				mOutput.addElement(false);
+				mOutput.addElement(mWrongDateTime);
+			} else
+				mOutput.addElement(true);
+		} else {
+			if (cal2.before(calmax) || cal2.after(calmin)) {
+				mOutput.addElement(false);
+				mOutput.addElement(mWrongDateTime);
+			} else
+				mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+	public Vector<Object> checkWrong_DatetimeOrigin(String calendar) {
+		mOutput.removeAllElements();
+		Calendar cal2 = Calendar.getInstance();
+		cal2.set(Calendar.HOUR_OF_DAY, 0);
+		cal2.set(Calendar.MINUTE, 0);
+		cal2.set(Calendar.SECOND, 0);
+		cal2.set(Calendar.MILLISECOND, 0);
+		cal2.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy",
+				Locale.getDefault());
+		try {
+			cal.setTime(sdf.parse(calendar));
+			cal.set(Calendar.HOUR_OF_DAY, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.MILLISECOND, 0);
+			cal.setTimeZone(TimeZone.getTimeZone("UTC"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		if (cal.after(cal2)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mWrongDateTime);
+		} else
+			mOutput.addElement(true);
+		return mOutput;
+	}
+
+	public Vector<Object> checkWrong_DatetimeReturn(int day, int month, int year) {
+		mOutput.removeAllElements();
+		Calendar cal1 = Calendar.getInstance();
+		cal1.set(Calendar.YEAR, year);
+		cal1.set(Calendar.MONTH, month);
+		cal1.set(Calendar.DAY_OF_MONTH, day);
+		cal1.set(Calendar.HOUR_OF_DAY, 0);
+		cal1.set(Calendar.MINUTE, 0);
+		cal1.set(Calendar.SECOND, 0);
+		cal1.set(Calendar.MILLISECOND, 0);
+		cal1.setTimeZone(TimeZone.getTimeZone("UTC"));
+		// cal1.add(Calendar.DATE, 1);
+
+		Calendar cal2 = Calendar.getInstance();
+		cal2.set(Calendar.HOUR_OF_DAY, 0);
+		cal2.set(Calendar.MINUTE, 0);
+		cal2.set(Calendar.SECOND, 0);
+		cal2.set(Calendar.MILLISECOND, 0);
+		cal2.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+		if (cal1.before(cal2)) {
+			mOutput.addElement(false);
+			mOutput.addElement(mWrongDateTimeReturn);
+		} else
+			mOutput.addElement(true);
+		return mOutput;
+	}
+
+	public Vector<Object> checkWrong_Email(String input) {
+		mOutput.removeAllElements();
+		Pattern pattern = Pattern
+				.compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+						+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
+		Matcher matcher = pattern.matcher(input);
+
+		if (!matcher.matches()) {
+			mOutput.addElement(false);
+			mOutput.addElement(mWrongEmail);
+		} else
+			mOutput.addElement(true);
+		return mOutput;
+	}
+
+	public Vector<Object> checkWrong_Password(String input, String input2) {
+		mOutput.removeAllElements();
+		if (!input.trim().equals(input2.trim())) {
+			mOutput.addElement(false);
+			mOutput.addElement(mWrongPassword);
+		} else {
+			mOutput.addElement(true);
+		}
+		return mOutput;
+	}
+
+}

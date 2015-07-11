@@ -1,0 +1,10 @@
+package com.vnpay.vntalk.util;
+
+public interface IValidate {
+	public String ValidateNull(boolean input, int TypeObject);
+
+	public String ValidateNull(String input);
+
+	public String ValidateNull(String input, int TypeObject);
+
+}

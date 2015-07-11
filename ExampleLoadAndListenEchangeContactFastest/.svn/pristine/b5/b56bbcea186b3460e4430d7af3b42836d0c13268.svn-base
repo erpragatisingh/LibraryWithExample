@@ -1,0 +1,328 @@
+package com.vnpay.vntalk.util;
+
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.View.OnKeyListener;
+import android.widget.EditText;
+
+public class CustomTextWatcher implements TextWatcher {
+	private EditText mEditext;
+	private int mkeyDel;
+
+	public CustomTextWatcher(EditText mEditext) {
+		super();
+		this.mEditext = mEditext;
+	}
+
+	public void afterTextChanged(Editable s) {
+
+	}
+
+	public void beforeTextChanged(CharSequence s, int start, int count,
+			int after) {
+
+	}
+
+	public void onTextChanged(CharSequence s, int start, int before, int count) {
+		mEditext.setOnKeyListener(new OnKeyListener() {
+
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+				if (keyCode == KeyEvent.KEYCODE_DEL)
+					mkeyDel = 1;
+				return false;
+			}
+		});
+
+		if (mkeyDel == 0) {
+			String output = mEditext.getText().toString();
+			output = output.replaceAll(",", "");
+			int lenght = output.length();
+			if (lenght > 3) {
+				String result = "";
+				if (lenght == 4)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 0)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 5)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 1)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 6)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 2)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 7)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 0 || i == 3)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 8)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 1 || i == 4)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 9)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 2 || i == 5)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 10)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 0 || i == 3 || i == 6)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 11)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 1 || i == 4 || i == 7)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 12)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 2 || i == 5 || i == 8)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 13)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 0 || i == 3 || i == 6 || i == 9)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 14)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 1 || i == 4 || i == 7 || i == 10)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 15)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 2 || i == 5 || i == 8 || i == 11)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 16)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 0 || i == 3 || i == 6 || i == 9 || i == 12)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 17)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 1 || i == 4 || i == 7 || i == 10 || i == 13)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 18)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 2 || i == 5 || i == 8 || i == 11 || i == 14)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 19)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 0 || i == 3 || i == 6 || i == 9 || i == 12
+								|| i == 15)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+
+				mEditext.removeTextChangedListener(this);
+				mEditext.setText(result);
+				mEditext.setSelection(result.length());
+				mEditext.addTextChangedListener(this);
+			}
+
+		} else {
+			String result = "";
+			String output = mEditext.getText().toString();
+			output = output.replaceAll(",", "");
+			int lenght = output.length();
+			if (lenght <= 3) {
+				result = output;
+			} else if (lenght > 3) {
+				if (lenght == 4)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 0)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 5)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 1)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 6)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 2)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 7)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 0 || i == 3)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 8)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 1 || i == 4)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 9)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 2 || i == 5)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 10)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 0 || i == 3 || i == 6)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 11)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 1 || i == 4 || i == 7)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 12)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 2 || i == 5 || i == 8)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 13)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 0 || i == 3 || i == 6 || i == 9)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 14)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 1 || i == 4 || i == 7 || i == 10)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 15)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 2 || i == 5 || i == 8 || i == 11)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 16)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 0 || i == 3 || i == 6 || i == 9 || i == 12)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 17)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 1 || i == 4 || i == 7 || i == 10 || i == 13)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 18)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 2 || i == 5 || i == 8 || i == 11 || i == 14)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+				else if (lenght == 19)
+					for (int i = 0; i < lenght; i++) {
+						char c = output.charAt(i);
+						if (i == 0 || i == 3 || i == 6 || i == 9 || i == 12
+								|| i == 15)
+							result = result + c + ",";
+						else
+							result = result + c;
+					}
+
+			}
+			mEditext.removeTextChangedListener(this);
+			mEditext.setText(result);
+			mEditext.setSelection(result.length());
+			mEditext.addTextChangedListener(this);
+			mkeyDel = 0;
+		}
+	}
+
+}

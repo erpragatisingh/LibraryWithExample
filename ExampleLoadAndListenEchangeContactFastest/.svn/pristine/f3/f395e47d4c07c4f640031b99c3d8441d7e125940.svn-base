@@ -1,0 +1,302 @@
+package com.vnpay.vntalk.util;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningAppProcessInfo;
+import android.app.ActivityManager.RunningTaskInfo;
+import android.content.ComponentName;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.OperationApplicationException;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.media.RingtoneManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Environment;
+import android.os.RemoteException;
+import android.os.StatFs;
+import android.os.Vibrator;
+import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.provider.ContactsContract.CommonDataKinds.Photo;
+import android.provider.ContactsContract.CommonDataKinds.StructuredName;
+import android.provider.ContactsContract.Contacts;
+import android.provider.ContactsContract.RawContacts;
+import android.provider.ContactsContract.RawContacts.Data;
+import android.view.Display;
+import android.view.WindowManager;
+
+public class Utils_Android {
+	public static boolean isApplicationSentToBackground(final Context context) {
+		ActivityManager am = (ActivityManager) context
+				.getSystemService(Context.ACTIVITY_SERVICE);
+		List<RunningTaskInfo> tasks = am.getRunningTasks(1);
+		if (!tasks.isEmpty()) {
+			ComponentName topActivity = tasks.get(0).topActivity;
+			if (!topActivity.getPackageName().equals(context.getPackageName())) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public static void soundDefault(Context context) {
+		Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(
+				context, RingtoneManager.TYPE_NOTIFICATION);
+		if (defaultRingtoneUri == null)
+			return;
+		MediaPlayer mediaPlayer = new MediaPlayer();
+
+		try {
+			mediaPlayer.setDataSource(context, defaultRingtoneUri);
+			mediaPlayer.setAudioStreamType(AudioManager.STREAM_NOTIFICATION);
+			mediaPlayer.prepare();
+			mediaPlayer.setOnCompletionListener(new OnCompletionListener() {
+
+				@Override
+				public void onCompletion(MediaPlayer mp) {
+					mp.release();
+				}
+			});
+			mediaPlayer.start();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void vibrator(Context context, long time) {
+		// Set the pattern for vibration
+		long pattern[] = { 0, 200, 100, 200, 200 };
+
+		// Set the pattern for vibration
+		// long pattern[] = { 0, 200, 100, 300, 400 };
+
+		// Start the vibration
+		Vibrator vibrator = (Vibrator) context
+				.getSystemService(Context.VIBRATOR_SERVICE);
+		// start vibration with repeated count, use -1 if you don't want to
+		// repeat the vibration
+		// vibrator.vibrate(pattern, 0);
+		vibrator.vibrate(time); // vibrate for 3 seconds (e.g 3000 milliseconds)
+	}
+
+	public static void insertContact(Context context, String phone,
+			String name, Bitmap contact_bitmap) {
+		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+		int rawContactInsertIndex = ops.size();
+
+		ops.add(ContentProviderOperation.newInsert(RawContacts.CONTENT_URI)
+				.withValue(RawContacts.ACCOUNT_TYPE, null)
+				.withValue(RawContacts.ACCOUNT_NAME, null).build());
+
+		// Phone Number
+		ops.add(ContentProviderOperation
+				.newInsert(ContactsContract.Data.CONTENT_URI)
+				.withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID,
+						rawContactInsertIndex)
+				.withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE)
+				.withValue(Phone.NUMBER, phone).build());
+
+		// Display name/Contact name
+		ops.add(ContentProviderOperation
+				.newInsert(ContactsContract.Data.CONTENT_URI)
+				.withValueBackReference(Data.RAW_CONTACT_ID,
+						rawContactInsertIndex)
+				.withValue(Data.MIMETYPE, StructuredName.CONTENT_ITEM_TYPE)
+				.withValue(StructuredName.DISPLAY_NAME, name).build());
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		if (contact_bitmap != null) { // If an image is selected
+										// successfully
+			contact_bitmap.compress(Bitmap.CompressFormat.PNG, 75, stream);
+			// Log.d("SIZE", contact_bitmap.getByteCount() + "");
+
+			// Log.d("SIZE", stream.size() + "");
+			// Adding insert operation to operations list
+			// to insert Photo in the table ContactsContract.Data
+			ops.add(ContentProviderOperation
+					.newInsert(ContactsContract.Data.CONTENT_URI)
+					.withValueBackReference(
+							ContactsContract.Data.RAW_CONTACT_ID,
+							rawContactInsertIndex)
+					.withValue(ContactsContract.Data.IS_SUPER_PRIMARY, 1)
+					.withValue(ContactsContract.Data.MIMETYPE,
+							Photo.CONTENT_ITEM_TYPE)
+					.withValue(ContactsContract.CommonDataKinds.Photo.PHOTO,
+							stream.toByteArray()).build());
+
+			try {
+				stream.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		try {
+			ContentProviderResult[] res = context.getContentResolver()
+					.applyBatch(ContactsContract.AUTHORITY, ops);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (OperationApplicationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public static void deleteContact(Context context, String contactId) {
+		ContentResolver cr = context.getContentResolver();
+		String selection = Contacts._ID + " = " + contactId;
+		Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null,
+				selection, null, null);
+		while (cur.moveToNext()) {
+			try {
+				String lookupKey = cur.getString(cur
+						.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY));
+				Uri uri = Uri
+						.withAppendedPath(
+								ContactsContract.Contacts.CONTENT_LOOKUP_URI,
+								lookupKey);
+
+				cr.delete(uri, null, null);
+			} catch (Exception e) {
+				System.out.println(e.getStackTrace());
+			}
+		}
+	}
+
+	public static boolean isOnline(Context c) {
+		ConnectivityManager cm = (ConnectivityManager) c
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netInfo = cm.getActiveNetworkInfo();
+		if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+			return true;
+		}
+		return false;
+	}
+
+	public static boolean IsExternalMemoryAvailable() {
+		return android.os.Environment.getExternalStorageState().equals(
+				android.os.Environment.MEDIA_MOUNTED);
+	}
+
+	public static long GetAvailableExternalMemorySize() {
+		if (IsExternalMemoryAvailable() == true) {
+			File path = Environment.getExternalStorageDirectory();
+			StatFs stat = new StatFs(path.getPath());
+
+			long blockSize = stat.getBlockSize();
+			long availableBlocks = stat.getAvailableBlocks();
+
+			return availableBlocks * blockSize;
+		} else {
+			return -1;
+		}
+	}
+
+	public static String FormatSize2(long size) {
+		String suffix = null;
+
+		if (size >= 1024) {
+			suffix = "KB";
+			size /= 1024;
+
+			if (size >= 1024) {
+				suffix = "MB";
+				size /= 1024;
+			}
+		}
+
+		StringBuilder resultBuffer = new StringBuilder(Long.toString(size));
+
+		return resultBuffer.toString();
+	}
+
+	static Logger logger = Logger.getLogger(Utils_Android.class);
+
+	public static int getHeight(Context context) {
+		WindowManager wm = (WindowManager) context
+				.getSystemService(Context.WINDOW_SERVICE);
+		Display display = wm.getDefaultDisplay();
+		return display.getHeight(); // deprecated
+	}
+
+	public static int getSDKVersionNumber() {
+		int version_sdk;
+		try {
+			version_sdk = Integer.valueOf(android.os.Build.VERSION.SDK);
+		} catch (NumberFormatException e) {
+			version_sdk = 0;
+		}
+		return version_sdk;
+	}
+
+	public static String getTopActivityName(Context context) {
+		String topActivityName = null;
+
+		ActivityManager activityManager = (ActivityManager) context
+				.getSystemService(Context.ACTIVITY_SERVICE);
+		List<RunningTaskInfo> tasks = activityManager.getRunningTasks(1);
+
+		if (tasks.size() > 0) {
+			topActivityName = tasks.get(0).topActivity.getClassName();
+		}
+
+		return topActivityName;
+	}
+
+	public static int getWidth(Context context) {
+		WindowManager wm = (WindowManager) context
+				.getSystemService(Context.WINDOW_SERVICE);
+		Display display = wm.getDefaultDisplay();
+		return display.getWidth(); // deprecated
+	}
+
+	public static boolean isMyAppRunningForeground(Context context) {
+		ActivityManager activityManager = (ActivityManager) context
+				.getSystemService(Context.ACTIVITY_SERVICE);
+		List<RunningAppProcessInfo> appProcesses = activityManager
+				.getRunningAppProcesses();
+		for (RunningAppProcessInfo appProcess : appProcesses) {
+			if (appProcess.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+				if (appProcess.processName.equals(context.getPackageName())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public static Throwable unwrap(final Throwable t) {
+		Throwable current = t;
+		while (current.getClass() == RuntimeException.class
+				|| current instanceof InvocationTargetException) {
+			if (current.getCause() == null) {
+				return current;
+			}
+			current = current.getCause();
+		}
+		return current;
+	}
+
+}

@@ -1,0 +1,1371 @@
+package com.vnpay.vntalk.util;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.math.BigInteger;
+import java.net.URI;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.apache.log4j.Logger;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningAppProcessInfo;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.ComponentName;
+import android.content.ContentUris;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Resources;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.location.Location;
+import android.media.AudioManager;
+import android.media.ExifInterface;
+import android.media.ThumbnailUtils;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.os.PowerManager;
+import android.os.StatFs;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
+import android.provider.Settings.Secure;
+import android.telephony.TelephonyManager;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+public class Utils {
+	public static final float DEFAULT_HDIP_DENSITY_SCALE = 1.5f;
+	public static final int DINFO_CALL_STATE = 0;
+	public static final int DINFO_DATA_STATE = 1;
+
+	public static final int DINFO_DEVICE_ID = 2;
+
+	public static final int DINFO_LOCALE = 23;
+
+	public static final int DINFO_NET_CNT_ISO = 5;
+
+	public static int getSDKVersionNumber() {
+		int version_sdk;
+		try {
+			version_sdk = Integer.valueOf(android.os.Build.VERSION.SDK);
+		} catch (NumberFormatException e) {
+			version_sdk = 0;
+		}
+		return version_sdk;
+	}
+
+	private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+
+	public static final int DINFO_NET_OPERATOR = 7;
+
+	public static final int DINFO_NET_OPERATOR_NAME = 9;
+
+	public static final int DINFO_NET_TYPE = 11;;
+
+	public static final int DINFO_PHONE_NUMBER = 4;;
+
+	public static final int DINFO_PHONE_TYPE = 12;;
+
+	public static final int DINFO_SIM_CNT_ISO = 6;
+
+	public static final int DINFO_SIM_NUMBER = 13;
+
+	public static final int DINFO_SIM_OPERATOR = 8;
+
+	public static final int DINFO_SIM_OPERATOR_NAME = 10;
+
+	public static final int DINFO_SIM_STATE = 14;
+
+	public static final int DINFO_SUB_ID = 15;
+
+	public static final int DINFO_SW_VERSION = 3;
+
+	static Logger logger = Logger.getLogger(Utils.class);
+
+	public static final int OSINFO_BRAND = 18;
+
+	public static final int OSINFO_DEVICE = 19;
+
+	public static final int OSINFO_DISPLAY = 20;
+
+	public static final int OSINFO_ID = 21;
+
+	public static final int OSINFO_MODEL = 22;
+
+	public static final int OSINFO_VERSION_RELEASE = 17;
+
+	public static final int OSINFO_VERSION_SDK = 16;
+
+	public static final int SMS_TIMEOUT = 60000;
+
+	public static int SOCKET_TIMEOUT = 45 * 1000;
+
+	public static int getTypeScreen(float w, float h) {
+		float tyle = h / w;
+		if (tyle < 1.34) {
+			return 1;
+		} else if (tyle == 1.5) {
+			return 2;
+		} else if (tyle == 1.6) {
+			return 3;
+		} else if (tyle < 1.67) {
+			return 4;
+		} else if (tyle < 1.71) {
+			return 5;
+		} else {
+			return 6;
+		}
+	}
+
+	@SuppressLint("InlinedApi")
+	public static void gotoHome(Context context, int PositionCurrent) {
+		Intent publishIntent = new Intent(Define.ActionName);
+		publishIntent.putExtra("type_action", 1);
+		publishIntent.putExtra("PositionCurrent", PositionCurrent);
+		context.sendBroadcast(publishIntent);
+	}
+
+	// public static boolean checkCreateDateLayout(String _currentDate,
+	// MyMessage _lastMessage) {
+	// if (_lastMessage == null)
+	// return true;
+	//
+	// String mLastType = _lastMessage
+	// .getMessageInfo(MInfoDefine.M_MESSAGE_TYPE);
+	// String mLastDate = _lastMessage
+	// .getMessageInfo(MInfoDefine.M_MESSAGE_TIME);
+	//
+	// if (mLastType.equals(MInfoDefine.N2M_MESSAGE_DATESEPA)) {
+	// return false;
+	// }
+	//
+	// if (Utils_Date.isSameDate(Utils_Date.getFormatCurrentTime(
+	// "yyyy-MM-dd HH:mm:ss", _currentDate), Utils_Date
+	// .getFormatCurrentTime("yyyy-MM-dd HH:mm:ss", mLastDate))) {
+	// return false;
+	// }
+	// return true;
+	// }
+
+	public static boolean checkFileVideo(String filename) {
+		if (filename.length() == 0)
+			return false;
+		File file = new File(FileManager.SDCARD_ROOT_MEDIA_VIDEO + filename);
+		return file.exists();
+
+	}
+
+	public static void checkHeap() {
+	}
+
+	public static boolean checkNetwork(Context context) {
+		// ConnectivityManager cManager;
+		// NetworkInfo mobile;
+		// NetworkInfo wifi;
+		//
+		// cManager = (ConnectivityManager) context
+		// .getSystemService(Context.CONNECTIVITY_SERVICE);
+		// mobile = cManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+		// wifi = cManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+		//
+		// if (mobile.isConnected() || wifi.isConnected()) {
+		// return true;
+		// }
+		// return false;
+
+		boolean b = false;
+		if (context != null) {
+			final ConnectivityManager connectivityManager = (ConnectivityManager) context
+					.getSystemService("connectivity");
+			final NetworkInfo networkInfo = connectivityManager
+					.getNetworkInfo(1);
+			if (networkInfo != null && networkInfo.isConnected()) {
+				b = true;
+			} else {
+				final NetworkInfo networkInfo2 = connectivityManager
+						.getNetworkInfo(0);
+				if (networkInfo2 != null && networkInfo2.isConnected()) {
+					b = true;
+				} else {
+					final NetworkInfo activeNetworkInfo = connectivityManager
+							.getActiveNetworkInfo();
+					b = false;
+					if (activeNetworkInfo != null) {
+						final boolean connected = activeNetworkInfo
+								.isConnected();
+						b = false;
+						if (connected) {
+							b = true;
+						}
+					}
+				}
+			}
+		}
+		return b;
+	}
+
+	public static double convertDouble(String value) {
+		try {
+			DecimalFormat f = new DecimalFormat("###,##0.###");
+			NumberFormat format = NumberFormat.getInstance(Locale.CHINESE);
+			return format.parse(value).doubleValue();
+		} catch (ParseException e) {
+			return 0;
+		}
+
+	}
+
+	public static double convertDouble1(String value) {
+		try {
+			DecimalFormat f = new DecimalFormat("0.00");
+			return f.parse(value).doubleValue();
+		} catch (ParseException e) {
+			return 0;
+		}
+
+	}
+
+	/**
+	 * This method convets dp unit to equivalent device specific value in
+	 * pixels.
+	 * 
+	 * @param dp
+	 *            A value in dp(Device independent pixels) unit. Which we need
+	 *            to convert into pixels
+	 * @param context
+	 *            Context to get resources and device specific display metrics
+	 * @return A float value to represent Pixels equivalent to dp according to
+	 *         device
+	 */
+	public static float convertDpToPixel(float dp, Context context) {
+		Resources resources = context.getResources();
+		DisplayMetrics metrics = resources.getDisplayMetrics();
+		float px = dp * (metrics.densityDpi / 160f);
+		return px;
+	}
+
+	public static float convertDpToPixels(float dp, Context context) {
+		Resources resources = context.getResources();
+		DisplayMetrics metrics = resources.getDisplayMetrics();
+		float px = dp * (metrics.densityDpi / 160f);
+		return px;
+	}
+
+	public static String convertIntToString(long time) {
+		String resulft = "";
+		long s = time / 1000;
+		long phut = s / 60;
+		long giay = s % 60;
+		if (phut < 10)
+			resulft = "0" + phut;
+		else
+			resulft = "" + phut;
+		resulft = resulft + ":";
+		if (giay < 10)
+			resulft = resulft + "0" + giay;
+		else
+			resulft = resulft + giay;
+
+		return resulft;
+	}
+
+	/**
+	 * This method converts device specific pixels to device independent pixels.
+	 * 
+	 * @param px
+	 *            A value in px (pixels) unit. Which we need to convert into db
+	 * @param context
+	 *            Context to get resources and device specific display metrics
+	 * @return A float value to represent db equivalent to px value
+	 */
+	public static float convertPixelsToDp(float px, Context context) {
+		Resources resources = context.getResources();
+		DisplayMetrics metrics = resources.getDisplayMetrics();
+		float dp = px / (metrics.densityDpi / 160f);
+		return dp;
+
+	}
+
+	public static long convertStringToLong(String s) {
+		long temp = 0;
+		try {
+			temp = Long.parseLong(s);
+		} catch (Exception e) {
+			temp = System.currentTimeMillis();
+		}
+		return temp;
+	}
+
+	public static long convertToLong(String uid) {
+		if (uid == null || uid.length() == 0)
+			return 0;
+		else
+			return Long.parseLong(uid);
+	}
+
+	public static void CopyStream(InputStream is, OutputStream os) {
+		final int buffer_size = 1024;
+		try {
+			byte[] bytes = new byte[buffer_size];
+			for (;;) {
+				int count = is.read(bytes, 0, buffer_size);
+				if (count == -1)
+					break;
+				os.write(bytes, 0, count);
+			}
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+		}
+	}
+
+	/**
+	 * Transform a encoded PolyLine to a Array of GeoPoints. Java implementation
+	 * of the original Google JS code.
+	 * 
+	 * @see Original encoding part: <a href=
+	 *      "http://code.google.com/apis/maps/documentation/polylinealgorithm.html"
+	 *      >http://code.google.com/apis/maps/documentation/polylinealgorithm.
+	 *      html</a>
+	 * @return Array of all GeoPoints decoded from the PolyLine-String.
+	 * @param encoded_points
+	 *            String containing the encoded PolyLine.
+	 * @param countExpected
+	 *            Number of points that are encoded in the PolyLine. Easiest way
+	 *            is to use the length of the ZoomLevels-String.
+	 * @throws DecodingException
+	 */
+
+	public static int[] decodeZoomLevels(String encodedZoomLevels) {
+		int[] out = new int[encodedZoomLevels.length()];
+		int index = 0;
+
+		for (char c : encodedZoomLevels.toCharArray())
+			out[index++] = c - '?';
+		return out;
+
+	}
+
+	public static int DPFromPixel(Context context, int pixel) {
+		float scale = context.getResources().getDisplayMetrics().density;
+		return (int) (pixel / DEFAULT_HDIP_DENSITY_SCALE * scale);
+	}
+
+	public static int exifToDegrees(int exifOrientation) {
+
+		if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
+			return 90;
+		} else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
+			return 180;
+		} else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
+			return 270;
+		} else if (exifOrientation == ExifInterface.ORIENTATION_NORMAL) {
+			return 0;
+		}
+		return 0;
+	}
+
+	public static String formatCurrentLPB(String s) {
+		if (!Utils_String.isNullOrEmpty(s)) {
+			if (s.length() > 0 && s.charAt(0) == (int) '0') {
+				return "0";
+			}
+			if (s.indexOf(",") >= 0)
+				s = s.replaceAll(",", "");
+
+			if (s.indexOf(".") >= 0)
+				s = s.replaceAll("\\.", "");
+			BigInteger s1 = new BigInteger(s);
+			Locale.setDefault(Locale.ENGLISH);
+			return String.format("%,d", s1);
+		}
+		return "";
+	}
+
+	public static String formatCurrent(String s) {
+		if (!Utils_String.isNullOrEmpty(s)) {
+			if (s.length() > 0 && s.charAt(0) == (int) '0') {
+				return "0";
+			}
+			if (s.indexOf(".") >= 0)
+				s = s.replaceAll("\\.", "");
+
+			if (s.indexOf(",") >= 0)
+				s = s.replaceAll(",", "");
+			BigInteger s1 = new BigInteger(s);
+			Locale.setDefault(Locale.GERMAN);
+			return String.format("%,d", s1);
+		}
+		return "";
+	}
+
+	public static String formatCurrent(String s, int maxLeng, boolean isVND) {
+		String backup = s;
+		if (isVND) {
+			if (s.length() > 0 && s.charAt(0) == (int) '0') {
+				return "KHONGHOPLE";
+			}
+			if (s.indexOf(".") > -1)
+				return "KHONGHOPLE";
+		} else {
+			if (s.length() > 1 && s.charAt(0) == (int) '0'
+					&& s.charAt(1) != (int) '.') {
+				return "KHONGHOPLE";
+			}
+		}
+		s = s.replaceAll(",", "");
+
+		int index = s.indexOf(".");
+		String s1 = s;
+		String s2 = "";
+		if (index > 0) {
+			s1 = s.substring(0, index);
+			s2 = s.substring(index);
+		} else if (index == 0) {
+			s1 = s.substring(0, index);
+			s = "0" + s;
+			System.out.println("ssss:" + s);
+			return s;
+		}
+		StringBuffer buffer = new StringBuffer();
+		int leng = s1.length();
+		int leng2 = s2.length();
+		if (leng2 > 0)
+			leng2 = leng2 - 1;
+
+		if (maxLeng > 0 && (leng + leng2) > maxLeng) {
+			return "KHONGHOPLE";
+		} else {
+			while (true) {
+				int sp = leng / 3;
+				if (sp > 0) {
+					if (sp == 1 && leng % 3 == 0) {
+						buffer.insert(0, s1.subSequence(leng - 3, leng));
+						leng -= 3;
+						break;
+					} else {
+						buffer.insert(0, s1.subSequence(leng - 3, leng));
+						buffer.insert(0, ",");
+						leng -= 3;
+					}
+
+				} else {
+					if (leng % 3 == 0) {
+						if (leng > 2) {
+							buffer.insert(0, s1.subSequence(leng - 3, leng));
+						}
+					} else {
+						buffer.insert(0,
+								s1.subSequence(leng - (leng % 3), leng));
+					}
+					break;
+				}
+
+			}
+			return buffer.toString() + s2;
+		}
+	}
+
+	public static String formatCurrent1(String s, int maxLeng, boolean isVND) {
+		String backup = s;
+		if (isVND) {
+			if (s.length() > 0 && s.charAt(0) == (int) '0') {
+				return "KHONGHOPLE";
+			}
+			if (s.indexOf(".") > -1)
+				return "KHONGHOPLE";
+		} else {
+			if (s.length() > 1 && s.charAt(0) == (int) '0'
+					&& s.charAt(1) != (int) '.') {
+				return "KHONGHOPLE";
+			}
+		}
+		s = s.replaceAll(",", "");
+
+		int index = s.indexOf(".");
+		String s1 = s;
+		String s2 = "";
+		if (index > 0) {
+			s1 = s.substring(0, index);
+			s2 = s.substring(index);
+		} else if (index == 0) {
+			s1 = s.substring(0, index);
+			s = "0" + s;
+			System.out.println("ssss:" + s);
+			return s;
+		}
+		StringBuffer buffer = new StringBuffer();
+		int leng = s1.length();
+		int leng2 = s2.length();
+		if (leng2 > 0)
+			leng2 = leng2 - 1;
+
+		if (maxLeng > 0 && (leng + leng2) > maxLeng) {
+			return "KHONGHOPLE";
+		} else {
+			while (true) {
+				int sp = leng / 2;
+				if (sp > 0) {
+					if (sp == 1 && leng % 2 == 0) {
+						buffer.insert(0, s1.subSequence(leng - 2, leng));
+						leng -= 2;
+						break;
+					} else {
+						buffer.insert(0, s1.subSequence(leng - 2, leng));
+						buffer.insert(0, ".");
+						leng -= 2;
+					}
+
+				} else {
+					if (leng % 2 == 0) {
+						if (leng > 1) {
+							buffer.insert(0, s1.subSequence(leng - 2, leng));
+						}
+					} else {
+						buffer.insert(0,
+								s1.subSequence(leng - (leng % 2), leng));
+					}
+					break;
+				}
+
+			}
+			return buffer.toString() + s2;
+		}
+	}
+
+	public static String formatDoubleGia(String value, int num) {
+		try {
+			DecimalFormat f = null;
+			switch (num) {
+			case 0:
+				f = new DecimalFormat("###,###");
+				break;
+			case 1:
+				f = new DecimalFormat("###,##0.0");
+				break;
+			case 2:
+				f = new DecimalFormat("###,##0.00");
+				break;
+			case 3:
+				f = new DecimalFormat("###,##0.000");
+				break;
+			default:
+				f = new DecimalFormat("###,###");
+				break;
+			}
+
+			NumberFormat format = NumberFormat.getInstance(Locale.CHINESE);
+			double d = format.parse(value).doubleValue();
+			String s = f.format(d);
+
+			int index1 = s.indexOf(",");
+			int index2 = s.indexOf(".");
+			if (index1 > index2) {
+				s = s.replace('.', 'a');
+				s = s.replace(',', '.');
+				s = s.replace('a', ',');
+			}
+			return s;
+		} catch (ParseException e) {
+			return "";
+		}
+	}
+
+	public static String FormatSize(long size) {
+		String suffix = null;
+
+		if (size >= 1024) {
+			suffix = "KB";
+			size /= 1024;
+
+			if (size >= 1024) {
+				suffix = "MB";
+				size /= 1024;
+			}
+		}
+		StringBuilder resultBuffer = new StringBuilder(Long.toString(size));
+		int commaOffset = resultBuffer.length() - 3;
+		while (commaOffset > 0) {
+			resultBuffer.insert(commaOffset, ',');
+			commaOffset -= 3;
+		}
+		if (suffix != null) {
+			resultBuffer.append(suffix);
+		}
+		return resultBuffer.toString();
+	}
+
+	public static String FormatSize2(long size) {
+		String suffix = null;
+		if (size >= 1024) {
+			suffix = "KB";
+			size /= 1024;
+
+			if (size >= 1024) {
+				suffix = "MB";
+				size /= 1024;
+			}
+		}
+		StringBuilder resultBuffer = new StringBuilder(Long.toString(size));
+		return resultBuffer.toString();
+	}
+
+	public static String formatTabUser(String uid, String display) {
+		return display;
+	}
+
+	public static String GenOTP(Logger logger, String Counter, String deviceid,
+			String clientID, String OTP) {
+		try {
+			String temp = Counter + deviceid + clientID + OTP;
+			MessageDigest md;
+
+			md = MessageDigest.getInstance("MD5");
+			md.update(temp.getBytes());
+
+			byte byteData[] = md.digest();
+
+			StringBuffer sb = new StringBuffer();
+			for (int i = 0; i < byteData.length; i++) {
+				sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16)
+						.substring(1));
+			}
+
+			String str1 = sb.toString();
+			String Str2 = str1.substring(1, 2) + str1.substring(6, 7)
+					+ str1.substring(8, 9) + str1.substring(20, 21)
+					+ str1.substring(11, 12) + str1.substring(29, 30);
+			char[] b = Str2.toCharArray();
+			for (int i = 0; i < 6; i++) {
+				if (!(Utils_String.isNumeric(Str2.substring(i, i + 1)))) {
+					int index = (int) b[i];
+					index = index % 10;
+					Str2 = Utils_String.replaceCharAt(Str2, i,
+							String.valueOf(index));
+				}
+			}
+			OTP = Str2;
+			return OTP;
+		} catch (NoSuchAlgorithmException e) {
+			logger.error(e.getMessage(), e);
+		}
+		return "";
+	}
+
+	public static String getAppVersion(Context context) {
+		String versionName = null;
+		int versionCode = 0;
+		try {
+			PackageManager packageManager = context.getPackageManager();
+			PackageInfo info = packageManager.getPackageInfo(
+					context.getPackageName(), PackageManager.GET_META_DATA);
+			versionCode = info.versionCode;
+			versionName = info.versionName;
+		} catch (NameNotFoundException e) {
+			versionCode = 1;
+			versionName = "1.1.0";
+		}
+
+		return versionName;
+	}
+
+	public static long GetAvailableExternalMemorySize() {
+		if (IsExternalMemoryAvailable() == true) {
+			File path = Environment.getExternalStorageDirectory();
+			StatFs stat = new StatFs(path.getPath());
+
+			long blockSize = stat.getBlockSize();
+			long availableBlocks = stat.getAvailableBlocks();
+
+			return availableBlocks * blockSize;
+		} else {
+			return -1;
+		}
+	}
+
+	public static long GetAvailableExternalMemorySize(Logger logger) {
+		if (IsExternalMemoryAvailable() == true) {
+			File path = Environment.getExternalStorageDirectory();
+			StatFs stat = new StatFs(path.getPath());
+
+			long blockSize = stat.getBlockSize();
+			long availableBlocks = stat.getAvailableBlocks();
+			logger.info("GetAvailableExternalMemorySize:"
+					+ (availableBlocks * blockSize));
+			return availableBlocks * blockSize;
+		} else {
+			return -1;
+		}
+	}
+
+	public static long GetAvailableInternalMemorySize() {
+		File path = Environment.getDataDirectory();
+
+		StatFs stat = new StatFs(path.getPath());
+
+		long blockSize = stat.getBlockSize();
+		long availableBlocks = stat.getAvailableBlocks();
+
+		return availableBlocks * blockSize;
+	}
+
+	public static int getColorFromString(String s, Resources resources) {
+		int color = 0;
+		if (s.startsWith("+0.0")) {
+			color = resources.getColor(R.color.orange);
+		} else if (s.startsWith("+")) {
+			color = resources.getColor(R.color.blue_ttck);
+		} else {
+			color = resources.getColor(R.color.red_ttck);
+		}
+		return color;
+	}
+
+	public static int getColorType(String colorType, Resources resources) {
+		// _ Hồng: giá khớp = giá trần (colorType=1)
+		// _ Xanh dương: giá khớp = giá sàn (colorType=2)
+		// _ Vàng: giá khớp = giá tham chiếu hôm trước (colorType=3)
+		// _ Đỏ: giá khớp giảm so với giá tham chiếu (colorType=4)
+		// _ Xanh lá: giá khớp tăng so với giá tham chiếu (colorType=5)
+		// Nếu giá = 0 thì colorType = 0
+		int value = 0;
+		int color = 0;
+		try {
+			value = Integer.parseInt(colorType);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		switch (value) {
+		case 0:
+			color = resources.getColor(R.color.black);
+			break;
+		case 1:
+			color = resources.getColor(R.color.hong_ttck);
+			break;
+		case 2:
+			color = resources.getColor(R.color.blue_duong_ttck);
+			break;
+		case 3:
+			color = resources.getColor(R.color.orange);
+			break;
+		case 4:
+			color = resources.getColor(R.color.red_ttck);
+			break;
+		case 5:
+			color = resources.getColor(R.color.blue_ttck);
+			break;
+
+		default:
+			break;
+		}
+
+		return color;
+	}
+
+	public static String getDInfo(Context context, int infoType) {
+		Activity act = (Activity) context;
+		String result = null;
+		TelephonyManager tm = (TelephonyManager) act
+				.getSystemService(Context.TELEPHONY_SERVICE);
+
+		switch (infoType) {
+		case DINFO_CALL_STATE:
+			result = "" + tm.getCallState();
+			break;
+		case DINFO_DATA_STATE:
+			result = "" + tm.getDataState();
+			break;
+		case DINFO_DEVICE_ID:
+			String android_id = Secure.getString(context.getContentResolver(),
+					Secure.ANDROID_ID);
+			result = tm.getDeviceId();
+			if (!Utils_String.isNullOrEmpty(android_id)) {
+				result = result + android_id;
+			}
+
+			break;
+		case DINFO_SW_VERSION:
+			result = tm.getDeviceSoftwareVersion();
+			break;
+		case DINFO_PHONE_NUMBER:
+			result = tm.getLine1Number();
+			break;
+		case DINFO_NET_CNT_ISO:
+			result = tm.getNetworkCountryIso();
+			break;
+		case DINFO_SIM_CNT_ISO:
+			result = tm.getSimCountryIso();
+			break;
+		case DINFO_NET_OPERATOR:
+			result = tm.getNetworkOperator();
+			break;
+		case DINFO_SIM_OPERATOR:
+			result = tm.getSimOperator();
+			break;
+		case DINFO_NET_OPERATOR_NAME:
+			result = tm.getNetworkOperatorName();
+			break;
+		case DINFO_SIM_OPERATOR_NAME:
+			result = tm.getSimOperatorName();
+			break;
+		case DINFO_NET_TYPE:
+			result = "" + tm.getNetworkType();
+			break;
+		case DINFO_PHONE_TYPE:
+			result = "" + tm.getPhoneType();
+			break;
+		case DINFO_SIM_NUMBER:
+			result = tm.getSimSerialNumber();
+			break;
+		case DINFO_SIM_STATE:
+			result = "" + tm.getSimState();
+			break;
+		case DINFO_SUB_ID:
+			result = tm.getSubscriberId();
+			break;
+		case OSINFO_VERSION_SDK:
+			result = "" + android.os.Build.VERSION.SDK;
+			break;
+		case OSINFO_VERSION_RELEASE:
+			result = "" + android.os.Build.VERSION.RELEASE;
+			break;
+		case OSINFO_BRAND:
+			result = "" + android.os.Build.BRAND;
+			break;
+		case OSINFO_DEVICE:
+			result = "" + android.os.Build.DEVICE;
+			break;
+		case OSINFO_DISPLAY:
+			result = "" + android.os.Build.DISPLAY;
+			break;
+		case OSINFO_ID:
+			result = "" + android.os.Build.ID;
+			break;
+		case OSINFO_MODEL:
+			result = "" + android.os.Build.MODEL;
+			break;
+		case DINFO_LOCALE:
+			Locale locale = context.getResources().getConfiguration().locale;
+			result = locale.getLanguage();
+			break;
+		}
+		if (result == null)
+			result = "";
+		return result;
+	}
+
+	public static int getLatitude(Location mLo) {
+		return (int) (mLo.getLatitude() * 1E6);
+	}
+
+	public static int getLongitude(Location mLo) {
+		return (int) (mLo.getLongitude() * 1E6);
+	}
+
+	public static String getMoviePath(Uri _uri, Activity activity) {
+		String mPath = "";
+		String[] projection = { MediaStore.Video.VideoColumns.DATA };
+		Cursor cursor = activity.managedQuery(_uri, projection, null, null,
+				null);
+		int column_index = cursor
+				.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DATA);
+		cursor.moveToFirst();
+		mPath = cursor.getString(column_index);
+		return mPath;
+	}
+
+	public static int getMovieSize(Uri _uri, Activity activity) {
+		int mSize = 0;
+		String[] projection = { MediaStore.Video.VideoColumns.SIZE };
+		Cursor cursor = activity.managedQuery(_uri, projection, null, null,
+				null);
+		int column_index = cursor
+				.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.SIZE);
+		cursor.moveToFirst();
+		mSize = cursor.getInt(column_index);
+		return mSize;
+	}
+
+	public static String getMyPackageName(Context context) {
+		String strPackage = context.getPackageName();
+		return strPackage;
+	}
+
+	public static String getRealPathFromURI(Activity activity, Uri contentUri) {
+		String[] proj = { MediaStore.Audio.Media.DATA };
+		Cursor cursor = activity.managedQuery(contentUri, proj, null, null,
+				null);
+		if (cursor != null) {
+			int column_index = cursor
+					.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
+			cursor.moveToFirst();
+			return cursor.getString(column_index);
+		} else {
+			return contentUri.getPath();
+		}
+	}
+
+	public static int getScreenHeight(Context context) {
+		android.view.Display displays = ((WindowManager) context
+				.getApplicationContext().getSystemService(
+						context.getApplicationContext().WINDOW_SERVICE))
+				.getDefaultDisplay();
+		return displays.getHeight();
+	}
+
+	public static boolean getScreenOn(Context context) {
+		PowerManager pm = (PowerManager) context
+				.getSystemService(Context.POWER_SERVICE);
+		return pm.isScreenOn();
+	}
+
+	public static int getScreenWidth(Context context) {
+		android.view.Display displays = ((WindowManager) context
+				.getApplicationContext().getSystemService(
+						context.getApplicationContext().WINDOW_SERVICE))
+				.getDefaultDisplay();
+		return displays.getWidth();
+	}
+
+	public static Bitmap getThumbVideo(String path) {
+		Bitmap thumb = ThumbnailUtils.createVideoThumbnail(path,
+				MediaStore.Images.Thumbnails.MINI_KIND);
+		return thumb;
+
+	}
+
+	public static String getTopRunningPackageName(Context context) {
+		ActivityManager am = (ActivityManager) context
+				.getSystemService(Context.ACTIVITY_SERVICE);
+		List<ActivityManager.RunningTaskInfo> task = am.getRunningTasks(1);
+
+		ComponentName topActivity = task.get(0).topActivity;
+		String strPackage = topActivity.getPackageName();
+		return strPackage;
+	}
+
+	public static long GetTotalExternalMemorySize() {
+		if (IsExternalMemoryAvailable() == true) {
+			File path = Environment.getExternalStorageDirectory();
+			StatFs stat = new StatFs(path.getPath());
+
+			long blockSize = stat.getBlockSize();
+			long totalBlocks = stat.getBlockCount();
+
+			return totalBlocks * blockSize;
+		} else {
+			return -1;
+		}
+	}
+
+	public static long GetTotalInternalMemorySize() {
+		File path = Environment.getDataDirectory();
+		StatFs stat = new StatFs(path.getPath());
+		long blockSize = stat.getBlockSize();
+		long totalBlocks = stat.getBlockCount();
+
+		return totalBlocks * blockSize;
+	}
+
+	public static void hideInputSoftArea(Context context, EditText edit) {
+		InputMethodManager imm = (InputMethodManager) context
+				.getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(edit.getWindowToken(), 0);
+	}
+
+	public static boolean IsExternalMemoryAvailable() {
+		return android.os.Environment.getExternalStorageState().equals(
+				android.os.Environment.MEDIA_MOUNTED);
+	}
+
+	public static boolean isNamedProcessRunning(Context context,
+			String processName) {
+		if (processName == null)
+			return false;
+		ActivityManager manager = (ActivityManager) context
+				.getSystemService(Activity.ACTIVITY_SERVICE);
+		List<RunningAppProcessInfo> processes = manager
+				.getRunningAppProcesses();
+
+		for (RunningAppProcessInfo process : processes) {
+			if (processName.equals(process.processName)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean isNetworking(Context c) {
+		ConnectivityManager cm = (ConnectivityManager) c
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netInfo = cm.getActiveNetworkInfo();
+		if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+			return true;
+		}
+		return false;
+	}
+
+	public static boolean isOnline(Context c) {
+		ConnectivityManager cm = (ConnectivityManager) c
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netInfo = cm.getActiveNetworkInfo();
+		if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+			return true;
+		}
+		return false;
+	}
+
+	public static boolean isTimeout(long time, int SMS_Timeout) {
+		return (time > SMS_Timeout);
+	}
+
+	public static boolean isTopActivity(Context context) {
+		String topPackage = getTopRunningPackageName(context);
+		String myPackage = getMyPackageName(context);
+
+		if (topPackage == null || topPackage.length() <= 0)
+			return false;
+		if (myPackage == null || myPackage.length() <= 0)
+			return false;
+
+		if (myPackage.equals(topPackage)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static void lowerMediaVolume(Context context) {
+		AudioManager mAudioManager = (AudioManager) context
+				.getSystemService(Context.AUDIO_SERVICE);
+		mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,
+				AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI);
+	}
+
+	public static int PixelFromDP(Context context, int DP) {
+		float scale = context.getResources().getDisplayMetrics().density;
+		return (int) (DP / scale * DEFAULT_HDIP_DENSITY_SCALE);
+	}
+
+	public static String postData(String URL) throws Exception {
+		BufferedReader in = null;
+		InputStreamReader is = null;
+		HttpParams httpParameters = new BasicHttpParams();
+		int timeoutConnection = 10000;
+		HttpConnectionParams.setConnectionTimeout(httpParameters,
+				timeoutConnection);
+		int timeoutSocket = 10000;
+		HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
+		String dataout = "";
+		try {
+			HttpClient client = new DefaultHttpClient(httpParameters);
+			HttpGet request = new HttpGet();
+			request.setURI(new URI(URL));
+			HttpResponse response = client.execute(request);
+			in = new BufferedReader(new InputStreamReader(response.getEntity()
+					.getContent()));
+			StringBuffer sb = new StringBuffer("");
+			String line = "";
+			while ((line = in.readLine()) != null) {
+				sb.append(line);
+			}
+			in.close();
+			dataout = sb.toString();
+		} finally {
+			if (is != null)
+				try {
+					is.close();
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+				}
+		}
+		return dataout;
+	}
+
+	public static void raiseMediaVolume(Context context) {
+		AudioManager mAudioManager = (AudioManager) context
+				.getSystemService(Context.AUDIO_SERVICE);
+		mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,
+				AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI);
+	}
+
+	public static int rand(int num) {
+		Random rand = new Random();
+		return (rand.nextInt() >>> 1) % num;
+	}
+
+	public static void sameMediaVolume(Context context) {
+		AudioManager mAudioManager = (AudioManager) context
+				.getSystemService(Context.AUDIO_SERVICE);
+		mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,
+				AudioManager.ADJUST_SAME, AudioManager.FLAG_SHOW_UI);
+	}
+
+	public static void screenDebug(Context context, String debug, int term) {
+		Toast toast = Toast.makeText(context, debug, term);
+		toast.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL,
+				0, 0);
+		toast.show();
+
+	}
+
+	public static void screenDebugButton(Context context, String debug, int term) {
+		Toast toast = Toast.makeText(context, debug, term);
+		toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+		toast.show();
+
+	}
+
+	public static void SHOW_MEMORYSIZE() {
+		Log.v("polo", "< MemoryStatus >");
+		Log.v("polo", "Total Internal MemorySize : "
+				+ FormatSize(GetTotalInternalMemorySize()));
+		Log.v("polo", "Available Internal MemorySize : "
+				+ FormatSize(GetAvailableInternalMemorySize()));
+
+		if (IsExternalMemoryAvailable() == true) {
+			Log.v("polo", "Total External MemorySize : "
+					+ FormatSize(GetTotalExternalMemorySize()));
+			Log.v("polo", "Available External MemorySize : "
+					+ FormatSize2(GetAvailableExternalMemorySize()));
+		}
+
+	}
+
+	public static void SHOW_MEMORYSIZE(Logger logger) {
+		Log.v("polo", "< MemoryStatus >");
+		Log.v("polo", "Total Internal MemorySize : "
+				+ FormatSize(GetTotalInternalMemorySize()));
+		Log.v("polo", "Available Internal MemorySize : "
+				+ FormatSize(GetAvailableInternalMemorySize()));
+
+		if (IsExternalMemoryAvailable() == true) {
+			Log.v("polo", "Total External MemorySize : "
+					+ FormatSize(GetTotalExternalMemorySize()));
+			Log.v("polo", "Available External MemorySize : "
+					+ FormatSize2(GetAvailableExternalMemorySize(logger)));
+		}
+
+	}
+
+	public static void showInputSoftArea(Context context, EditText edit) {
+		InputMethodManager imm = (InputMethodManager) context
+				.getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.showSoftInput(edit, InputMethodManager.SHOW_IMPLICIT);
+	}
+
+	public static NotificationManager showNotification(Context context,
+			Intent intent, int iconID, String ticker, String title,
+			String message) {
+		NotificationManager nManager = (NotificationManager) context
+				.getSystemService(Context.NOTIFICATION_SERVICE);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+				| Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		Notification notification = new Notification(iconID, ticker,
+				System.currentTimeMillis());
+
+		PendingIntent pIntent = PendingIntent
+				.getActivity(context, 0, intent, 0);
+		notification.setLatestEventInfo(context, title, message, pIntent);
+		nManager.notify(0, notification);
+		return nManager;
+	}
+
+	public static void sleep(long time) {
+		try {
+			Thread.sleep(time);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	// public static void updateAvatar(String fileId, ImageView imageview,
+	// int isSave, int size) {
+	// if (fileId == null || fileId.length() == 0 || fileId.equals("0"))
+	//
+	// imageview.setImageBitmap(ContextComont.avatarBipmap);
+	// else {
+	// ContextComont.getImageLoader()
+	// .DisplayImage(fileId, imageview, size);
+	// ContextComont.checkFileSave.put(fileId, new LoadItem(isSave,
+	// Constants.FORMAT_PICTURE));
+	// }
+	// }
+
+	public static void updateAvatar(String fileId, ImageView imageview,
+			int isSave, int size) {
+		// imageview.getLayoutParams().height = size;
+		// imageview.getLayoutParams().width = size;
+		// if (fileId == null || fileId.length() == 0 || fileId.equals("0"))
+		//
+		// imageview.setImageBitmap(ContextComont.avatarBipmap);
+		// else {
+		// ContextComont.getImageLoader()
+		// .DisplayImage(fileId, imageview, size);
+		// ContextComont.checkFileSave.put(fileId, new LoadItem(isSave,
+		// Constants.FORMAT_PICTURE));
+		// }
+	}
+
+	@SuppressLint("NewApi")
+	public static String getPath(final Context context, final Uri uri) {
+
+		final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+
+		// DocumentProvider
+		if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+			// ExternalStorageProvider
+			if (isExternalStorageDocument(uri)) {
+				final String docId = DocumentsContract.getDocumentId(uri);
+				final String[] split = docId.split(":");
+				final String type = split[0];
+
+				if ("primary".equalsIgnoreCase(type)) {
+					return Environment.getExternalStorageDirectory() + "/"
+							+ split[1];
+				}
+
+				// TODO handle non-primary volumes
+			}
+			// DownloadsProvider
+			else if (isDownloadsDocument(uri)) {
+
+				final String id = DocumentsContract.getDocumentId(uri);
+				final Uri contentUri = ContentUris.withAppendedId(
+						Uri.parse("content://downloads/public_downloads"),
+						Long.valueOf(id));
+
+				return getDataColumn(context, contentUri, null, null);
+			}
+			// MediaProvider
+			else if (isMediaDocument(uri)) {
+				final String docId = DocumentsContract.getDocumentId(uri);
+				final String[] split = docId.split(":");
+				final String type = split[0];
+
+				Uri contentUri = null;
+				if ("image".equals(type)) {
+					contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+				} else if ("video".equals(type)) {
+					contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+				} else if ("audio".equals(type)) {
+					contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+				}
+
+				final String selection = "_id=?";
+				final String[] selectionArgs = new String[] { split[1] };
+
+				return getDataColumn(context, contentUri, selection,
+						selectionArgs);
+			}
+		}
+		// MediaStore (and general)
+		else if ("content".equalsIgnoreCase(uri.getScheme())) {
+			return getDataColumn(context, uri, null, null);
+		}
+		// File
+		else if ("file".equalsIgnoreCase(uri.getScheme())) {
+			return uri.getPath();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get the value of the data column for this Uri. This is useful for
+	 * MediaStore Uris, and other file-based ContentProviders.
+	 *
+	 * @param context
+	 *            The context.
+	 * @param uri
+	 *            The Uri to query.
+	 * @param selection
+	 *            (Optional) Filter used in the query.
+	 * @param selectionArgs
+	 *            (Optional) Selection arguments used in the query.
+	 * @return The value of the _data column, which is typically a file path.
+	 */
+	public static String getDataColumn(Context context, Uri uri,
+			String selection, String[] selectionArgs) {
+
+		Cursor cursor = null;
+		final String column = "_data";
+		final String[] projection = { column };
+
+		try {
+			cursor = context.getContentResolver().query(uri, projection,
+					selection, selectionArgs, null);
+			if (cursor != null && cursor.moveToFirst()) {
+				final int column_index = cursor.getColumnIndexOrThrow(column);
+				return cursor.getString(column_index);
+			}
+		} finally {
+			if (cursor != null)
+				cursor.close();
+		}
+		return null;
+	}
+
+	/**
+	 * @param uri
+	 *            The Uri to check.
+	 * @return Whether the Uri authority is ExternalStorageProvider.
+	 */
+	public static boolean isExternalStorageDocument(Uri uri) {
+		return "com.android.externalstorage.documents".equals(uri
+				.getAuthority());
+	}
+
+	/**
+	 * @param uri
+	 *            The Uri to check.
+	 * @return Whether the Uri authority is DownloadsProvider.
+	 */
+	public static boolean isDownloadsDocument(Uri uri) {
+		return "com.android.providers.downloads.documents".equals(uri
+				.getAuthority());
+	}
+
+	/**
+	 * @param uri
+	 *            The Uri to check.
+	 * @return Whether the Uri authority is MediaProvider.
+	 */
+	public static boolean isMediaDocument(Uri uri) {
+		return "com.android.providers.media.documents".equals(uri
+				.getAuthority());
+	}
+
+}
